@@ -56,7 +56,7 @@ public class StoreableUtils {
     public static void readSignature(File inFile, List<Class<?>> inColumnTypes) throws IOException {
 
         if (!inFile.exists()) {
-            throw new IOException("signature.tsv doesn't exist");
+            throw new IOException("no signature.tsv");
         }
         if (inFile.length() == 0) {
             throw new IOException("signature.tsv is empty");
