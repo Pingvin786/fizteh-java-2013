@@ -83,9 +83,13 @@ public class FileMapUtils {
         }
     }
 
-    private static void closeStream(Closeable stream) throws IOException {
+    public static void closeStream(Closeable stream) {
 
-        stream.close();
+        try {
+            stream.close();
+        } catch (IOException e) {
+
+        }
     }
 
     public static void write(Map<String, String> dataBase, File currentFile) throws IOException {
