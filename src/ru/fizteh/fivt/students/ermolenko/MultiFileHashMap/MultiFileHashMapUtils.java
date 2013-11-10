@@ -13,7 +13,6 @@ public class MultiFileHashMapUtils {
 
     public static void read(File currentDir, Map<String, String> currentMap) throws IOException {
 
-
         if (!currentDir.exists()) {
             throw new IOException("directory doesn't exist");
         }
@@ -28,6 +27,9 @@ public class MultiFileHashMapUtils {
             }
             if (!subDir.isDirectory()) {
                 throw new IOException(subDir.getName() + "isn't directory");
+            }
+            if (!(subDir.list().length > 0)) {
+                throw new IOException("empty dir");
             }
 
             for (int fileNumber = 0; fileNumber < 16; ++fileNumber) {
