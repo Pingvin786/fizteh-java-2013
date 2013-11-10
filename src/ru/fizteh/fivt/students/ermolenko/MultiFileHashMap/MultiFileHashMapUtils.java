@@ -13,6 +13,14 @@ public class MultiFileHashMapUtils {
 
     public static void read(File currentDir, Map<String, String> currentMap) throws IOException {
 
+
+        if (!currentDir.exists()) {
+            throw new IOException("directory doesn't exist");
+        }
+        if (!currentDir.isDirectory()) {
+            throw new IOException("'" + currentDir.getName() + "' is not a directory");
+        }
+
         for (int directNumber = 0; directNumber < 16; ++directNumber) {
             File subDir = new File(currentDir, directNumber + ".dir");
             if (!subDir.exists()) {
