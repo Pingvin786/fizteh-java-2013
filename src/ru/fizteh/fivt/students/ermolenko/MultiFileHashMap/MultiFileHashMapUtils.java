@@ -37,6 +37,9 @@ public class MultiFileHashMapUtils {
                 if (!currentFile.exists()) {
                     continue;
                 }
+                if (!(currentFile.length() > 0)) {
+                    throw new IOException("empty file");
+                }
                 FileMapState state = new FileMapState(currentFile);
                 state.setDataBase(currentMap);
                 FileMapUtils.readDataBase(state);
