@@ -15,12 +15,16 @@ public class StoreableTableProviderFactory implements TableProviderFactory {
         }
 
         if (path.trim().isEmpty()) {
-            throw new IllegalArgumentException("directory is empty");
+            throw new IOException("directory is empty");
         }
+
 
         File file = new File(path);
         if (!file.isDirectory()) {
-            throw new IOException("should be directory");
+            throw new IllegalArgumentException("should be directory");
+        }
+        if (file.isFile()) {
+            throw new IllegalArgumentException("it is file");
         }
 
         return new StoreableTableProvider(new File(path));
