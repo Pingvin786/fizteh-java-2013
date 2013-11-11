@@ -14,10 +14,11 @@ public class StoreableExit implements Command<StoreableState> {
 
     @Override
     public void executeCmd(StoreableState inState, String[] args) throws IOException {
-
+        /*
         if (inState.getCurrentTable() != null) {
-            inState.getCurrentTable().commit();
+            //inState.getCurrentTable().commit();
         }
+        */
         System.exit(0);
     }
 }
