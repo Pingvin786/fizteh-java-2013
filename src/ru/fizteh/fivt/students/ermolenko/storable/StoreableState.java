@@ -55,6 +55,7 @@ public class StoreableState {
     public void deleteTable(String name) throws IOException {
 
         provider.removeTable(name);
+        //MultiFileHashMapUtils.deleteDirectory(provider.getTable(name).getDataFile());
         currentTable = null;
     }
 
