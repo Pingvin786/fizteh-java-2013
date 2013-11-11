@@ -69,7 +69,7 @@ public class StoreableTable implements Table {
 
         try {
             value.getColumnAt(columnOfTypes.size() + 1);
-        } catch (Exception e) {
+        } catch (IndexOutOfBoundsException e) {
             return true;
         }
         return false;
@@ -84,6 +84,14 @@ public class StoreableTable implements Table {
 
         if (!checkExtraColumns(value)) {
             throw new ColumnFormatException("extra columns found");
+        }
+
+        try {
+            for (int i = 0; i < columnOfTypes.size(); ++i) {
+                value.getColumnAt(i);
+            }
+        } catch (Exception e) {
+            throw new ColumnFormatException("less number of columns");
         }
 
         if ((!changesBase.containsKey(key) && !dataBase.containsKey(key)) ||
