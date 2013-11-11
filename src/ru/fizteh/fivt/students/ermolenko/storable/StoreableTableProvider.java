@@ -44,8 +44,11 @@ public class StoreableTableProvider implements TableProvider {
     @Override
     public StoreableTable getTable(String name) {
 
-        if (name == null) {
+        if (name == null || !name.matches("[0-9a-zA-Zа-яА-Я]+")) {
             throw new IllegalArgumentException("incorrect name of table");
+        }
+        if (name.trim().equals("")) {
+            throw new IllegalArgumentException("empty table");
         }
         return mapOfTables.get(name);
     }
