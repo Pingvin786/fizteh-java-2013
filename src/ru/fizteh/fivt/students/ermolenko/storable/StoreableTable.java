@@ -42,9 +42,11 @@ public class StoreableTable implements Table {
             throw new IllegalArgumentException("Incorrect key to get.");
         }
         String newKey = key.trim();
-        if (newKey.isEmpty()) {
+        if (newKey.trim().isEmpty() || key.matches("(.+\\s+.+)+")) {
             throw new IllegalArgumentException("Incorrect key to get");
         }
+
+
         MyStoreable returnValue;
         if (changesBase.containsKey(newKey)) {
             if (changesBase.get(newKey) == null) {

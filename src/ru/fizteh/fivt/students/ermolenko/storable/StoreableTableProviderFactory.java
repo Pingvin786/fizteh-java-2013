@@ -11,16 +11,16 @@ public class StoreableTableProviderFactory implements TableProviderFactory {
     public StoreableTableProvider create(String path) throws IOException {
 
         if (path == null) {
-            throw new IllegalArgumentException("value of path is null");
+            throw new IOException("value of path is null");
         }
 
         if (path.trim().isEmpty()) {
-            throw new IllegalArgumentException("directory is empty");
+            throw new IOException("directory is empty");
         }
 
         File file = new File(path);
         if (!file.isDirectory()) {
-            throw new IllegalArgumentException("should be directory");
+            throw new IOException("should be directory");
         }
 
         return new StoreableTableProvider(new File(path));
