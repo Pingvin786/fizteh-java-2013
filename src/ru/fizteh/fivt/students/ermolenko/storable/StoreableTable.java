@@ -12,8 +12,8 @@ public class StoreableTable implements Table {
 
     private List<Class<?>> columnOfTypes;
     private StoreableTableProvider tableProvider;
-    private Map<String, MyStoreable> dataBase;
-    private Map<String, MyStoreable> changesBase;
+    private Map<String, Storeable> dataBase;
+    private Map<String, Storeable> changesBase;
     private File dataFile;
     private int sizeTable;
 
@@ -22,8 +22,8 @@ public class StoreableTable implements Table {
 
         columnOfTypes = new ArrayList<Class<?>>();
         tableProvider = inTableProvider;
-        dataBase = new HashMap<String, MyStoreable>();
-        changesBase = new HashMap<String, MyStoreable>();
+        dataBase = new HashMap<String, Storeable>();
+        changesBase = new HashMap<String, Storeable>();
         dataFile = inFile;
         File signatureFile = new File(inFile, "signature.tsv");
         StoreableUtils.readSignature(signatureFile, columnOfTypes);
@@ -36,7 +36,7 @@ public class StoreableTable implements Table {
     }
 
     @Override
-    public MyStoreable get(String key) {
+    public Storeable get(String key) {
 
         if (key == null) {
             throw new IllegalArgumentException("Incorrect key to get.");
@@ -47,7 +47,7 @@ public class StoreableTable implements Table {
         }
 
 
-        MyStoreable returnValue;
+        Storeable returnValue;
         if (changesBase.containsKey(newKey)) {
             if (changesBase.get(newKey) == null) {
                 returnValue = null;
@@ -65,19 +65,33 @@ public class StoreableTable implements Table {
         return returnValue;
     }
 
+    public boolean checkExtraColumns(Storeable value) {
+
+        try {
+            value.getColumnAt(columnOfTypes.size() + 1);
+        } catch (Exception e) {
+            return true;
+        }
+        return false;
+    }
+
     @Override
-    public MyStoreable put(String key, Storeable value) throws ColumnFormatException {
+    public Storeable put(String key, Storeable value) throws ColumnFormatException {
 
         if (key == null || value == null) {
             throw new IllegalArgumentException("Incorrect key or value to put.");
+        }
+
+        if (!checkExtraColumns(value)) {
+            throw new ColumnFormatException("extra columns found");
         }
 
         if ((!changesBase.containsKey(key) && !dataBase.containsKey(key)) ||
                 (changesBase.containsKey(key) && changesBase.get(key) == null)) {
             ++sizeTable;
         }
-        MyStoreable result = get(key);
-        changesBase.put(key, (MyStoreable) value);
+        Storeable result = get(key);
+        changesBase.put(key, value);
         if (value.equals(dataBase.get(key))) {
             changesBase.remove(key);
         }
@@ -86,7 +100,7 @@ public class StoreableTable implements Table {
     }
 
     @Override
-    public MyStoreable remove(String key) {
+    public Storeable remove(String key) {
 
         if (key == null) {
             throw new IllegalArgumentException("Incorrect key to remove.");
@@ -100,7 +114,7 @@ public class StoreableTable implements Table {
         if (changesBase.get(newKey) != null || (!changesBase.containsKey(newKey) && dataBase.get(newKey) != null)) {
             --sizeTable;
         }
-        MyStoreable result = get(newKey);
+        Storeable result = get(newKey);
         changesBase.put(newKey, null);
         if (dataBase.get(newKey) == null) {
             changesBase.remove(newKey);
@@ -120,8 +134,8 @@ public class StoreableTable implements Table {
         int size = changesBase.size();
         try {
             if (size != 0) {
-                Set<Map.Entry<String, MyStoreable>> set = changesBase.entrySet();
-                for (Map.Entry<String, MyStoreable> pair : set) {
+                Set<Map.Entry<String, Storeable>> set = changesBase.entrySet();
+                for (Map.Entry<String, Storeable> pair : set) {
                     pair.getKey();
                     if (pair.getValue() == null) {
                         dataBase.remove(pair.getKey());
@@ -171,7 +185,7 @@ public class StoreableTable implements Table {
         return tableProvider;
     }
 
-    public Map<String, MyStoreable> getDataBase() {
+    public Map<String, Storeable> getDataBase() {
 
         return dataBase;
     }
@@ -187,7 +201,7 @@ public class StoreableTable implements Table {
     }
 
     public void changeCurrentTable(List<Class<?>> inColumnOfTypes, StoreableTableProvider inProvider,
-                                   Map<String, MyStoreable> inDataBase, File inFile) {
+                                   Map<String, Storeable> inDataBase, File inFile) {
 
         columnOfTypes = inColumnOfTypes;
         tableProvider = inProvider;

@@ -1,6 +1,7 @@
 package ru.fizteh.fivt.students.ermolenko.storable;
 
 import ru.fizteh.fivt.storage.structured.ColumnFormatException;
+import ru.fizteh.fivt.storage.structured.Storeable;
 import ru.fizteh.fivt.students.ermolenko.filemap.FileMapUtils;
 import ru.fizteh.fivt.students.ermolenko.multifilehashmap.MultiFileHashMapUtils;
 
@@ -163,7 +164,7 @@ public class StoreableUtils {
         }
     }
 
-    public static void write(File file, StoreableTable table, Map<String, MyStoreable> storeableMap,
+    public static void write(File file, StoreableTable table, Map<String, Storeable> storeableMap,
                              StoreableTableProvider tableProvider) throws IOException {
 
         Map<String, String> stringMap = new HashMap<String, String>();
