@@ -88,7 +88,9 @@ public class StoreableTable implements Table {
 
         try {
             for (int i = 0; i < columnOfTypes.size(); ++i) {
-                value.getColumnAt(i);
+                if (columnOfTypes.get(i) != value.getColumnAt(i).getClass()) {
+                    throw new ColumnFormatException("angry storeable");
+                }
             }
         } catch (Exception e) {
             throw new ColumnFormatException("less number of columns");

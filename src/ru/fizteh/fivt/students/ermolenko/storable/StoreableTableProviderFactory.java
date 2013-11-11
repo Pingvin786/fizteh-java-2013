@@ -20,7 +20,7 @@ public class StoreableTableProviderFactory implements TableProviderFactory {
 
         File file = new File(path);
         if (!file.isDirectory()) {
-            throw new IllegalArgumentException("should be directory");
+            throw new IOException("should be directory");
         }
 
         return new StoreableTableProvider(new File(path));
