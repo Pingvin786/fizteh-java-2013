@@ -68,7 +68,7 @@ public class StoreableTable implements Table {
     public boolean checkExtraColumns(Storeable value) {
 
         try {
-            value.getColumnAt(columnOfTypes.size() + 1);
+            value.getColumnAt(columnOfTypes.size());
         } catch (IndexOutOfBoundsException e) {
             return true;
         }
