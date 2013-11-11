@@ -16,7 +16,7 @@ public class StoreableMain {
         File base = new File(currentProperty);
         try {
             if (!base.exists()) {
-                base.createNewFile();
+                base.mkdir();
             }
 
             base = base.getCanonicalFile();
