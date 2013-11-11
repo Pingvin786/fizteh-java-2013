@@ -42,9 +42,9 @@ public class CmdUse implements Command<StoreableState> {
         Map<String, MyStoreable> tmpDataBase = inState.getTable(args[0]).getDataBase();
         File tmpDataFile = inState.getTable(args[0]).getDataFile();
         List<Class<?>> tmpColumnOfTypes = inState.getTable(args[0]).getColumnOfTypes();
-        File signatureFile = new File(tmpDataFile, "signature.tsv");
+        //File signatureFile = new File(tmpDataFile, "signature.tsv");
 
-        StoreableUtils.readSignature(signatureFile, tmpColumnOfTypes);
+        //StoreableUtils.readSignature(signatureFile, tmpColumnOfTypes);
 
         StoreableUtils.read(tmpDataFile, inState.getTable(args[0]), tmpDataBase, inState.getProvider());
 

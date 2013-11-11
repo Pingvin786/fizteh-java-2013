@@ -25,6 +25,8 @@ public class StoreableTable implements Table {
         dataBase = new HashMap<String, MyStoreable>();
         changesBase = new HashMap<String, MyStoreable>();
         dataFile = inFile;
+        File signatureFile = new File(inFile, "signature.tsv");
+        StoreableUtils.readSignature(signatureFile, columnOfTypes);
     }
 
     @Override
