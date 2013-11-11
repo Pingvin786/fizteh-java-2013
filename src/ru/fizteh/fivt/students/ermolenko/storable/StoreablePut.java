@@ -1,5 +1,6 @@
 package ru.fizteh.fivt.students.ermolenko.storable;
 
+import ru.fizteh.fivt.storage.structured.Storeable;
 import ru.fizteh.fivt.students.ermolenko.shell.Command;
 
 import java.io.IOException;
@@ -24,9 +25,9 @@ public class StoreablePut implements Command<StoreableState> {
             return;
         }
         try {
-            MyStoreable deserialized = inState.getCurrentTable().getTableProvider().deserialize(inState.getCurrentTable(), args[1]);
+            Storeable deserialized = inState.getCurrentTable().getTableProvider().deserialize(inState.getCurrentTable(), args[1]);
 
-            MyStoreable value = inState.putToCurrentTable(args[0], deserialized);
+            Storeable value = inState.putToCurrentTable(args[0], deserialized);
 
             if (null == value) {
                 System.out.println("new");

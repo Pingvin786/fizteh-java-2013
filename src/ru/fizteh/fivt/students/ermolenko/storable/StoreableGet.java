@@ -1,5 +1,6 @@
 package ru.fizteh.fivt.students.ermolenko.storable;
 
+import ru.fizteh.fivt.storage.structured.Storeable;
 import ru.fizteh.fivt.students.ermolenko.shell.Command;
 
 import java.io.IOException;
@@ -23,7 +24,7 @@ public class StoreableGet implements Command<StoreableState> {
             System.out.println("no table");
             return;
         }
-        MyStoreable value = inState.getFromCurrentTable(args[0]);
+        Storeable value = inState.getFromCurrentTable(args[0]);
         if (null == value) {
             System.out.println("not found");
         } else {

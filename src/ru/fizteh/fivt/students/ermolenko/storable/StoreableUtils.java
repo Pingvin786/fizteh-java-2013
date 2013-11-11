@@ -80,7 +80,7 @@ public class StoreableUtils {
         }
     }
 
-    public static void read(File inFile, StoreableTable table, Map<String, MyStoreable> currentMap,
+    public static void read(File inFile, StoreableTable table, Map<String, Storeable> currentMap,
                             StoreableTableProvider inProvider) throws IOException {
 
         Map<String, String> stringMap = new HashMap<String, String>();

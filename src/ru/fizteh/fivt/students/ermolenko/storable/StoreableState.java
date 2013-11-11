@@ -1,5 +1,7 @@
 package ru.fizteh.fivt.students.ermolenko.storable;
 
+import ru.fizteh.fivt.storage.structured.Storeable;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
@@ -38,7 +40,7 @@ public class StoreableState {
     }
 
     public void setCurrentTable(String name, List<Class<?>> columnOfTypes, StoreableTableProvider provider,
-                                Map<String, MyStoreable> dataBase, File file) {
+                                Map<String, Storeable> dataBase, File file) {
 
         currentTable = provider.getTable(name);
         currentTable.changeCurrentTable(columnOfTypes, provider, dataBase, file);
@@ -56,17 +58,17 @@ public class StoreableState {
         currentTable = null;
     }
 
-    public MyStoreable putToCurrentTable(String key, MyStoreable value) {
+    public Storeable putToCurrentTable(String key, Storeable value) {
 
         return currentTable.put(key, value);
     }
 
-    public MyStoreable getFromCurrentTable(String key) {
+    public Storeable getFromCurrentTable(String key) {
 
         return currentTable.get(key);
     }
 
-    public MyStoreable removeFromCurrentTable(String key) {
+    public Storeable removeFromCurrentTable(String key) {
 
         return currentTable.remove(key);
     }

@@ -1,5 +1,6 @@
 package ru.fizteh.fivt.students.ermolenko.storable;
 
+import ru.fizteh.fivt.storage.structured.Storeable;
 import ru.fizteh.fivt.students.ermolenko.shell.Command;
 
 import java.io.File;
@@ -39,7 +40,7 @@ public class CmdUse implements Command<StoreableState> {
             return;
         }
 
-        Map<String, MyStoreable> tmpDataBase = inState.getTable(args[0]).getDataBase();
+        Map<String, Storeable> tmpDataBase = inState.getTable(args[0]).getDataBase();
         File tmpDataFile = inState.getTable(args[0]).getDataFile();
         List<Class<?>> tmpColumnOfTypes = inState.getTable(args[0]).getColumnOfTypes();
 
