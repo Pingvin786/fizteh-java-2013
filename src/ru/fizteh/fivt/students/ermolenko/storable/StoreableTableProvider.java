@@ -107,6 +107,10 @@ public class StoreableTableProvider implements TableProvider {
             throw new IllegalArgumentException("incorrect name to create");
         }
 
+        if (mapOfTables.get(name) == null) {
+            throw new IllegalArgumentException("bot existing table");
+        }
+
         mapOfTables.remove(name);
     }
 

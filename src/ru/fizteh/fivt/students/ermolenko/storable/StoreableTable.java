@@ -119,6 +119,7 @@ public class StoreableTable implements Table {
             throw new IllegalArgumentException("Incorrect key to remove");
         }
 
+
         if (changesBase.get(newKey) != null || (!changesBase.containsKey(newKey) && dataBase.get(newKey) != null)) {
             --sizeTable;
         }
