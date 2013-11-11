@@ -11,7 +11,7 @@ public class StoreableTableProviderFactory implements TableProviderFactory {
     public StoreableTableProvider create(String path) throws IOException {
 
         if (path == null) {
-            throw new IOException("value of path is null");
+            throw new IllegalArgumentException("value of path is null");
         }
 
         if (path.trim().isEmpty()) {
