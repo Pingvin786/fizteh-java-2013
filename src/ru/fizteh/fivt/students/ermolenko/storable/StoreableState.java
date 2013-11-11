@@ -1,6 +1,7 @@
 package ru.fizteh.fivt.students.ermolenko.storable;
 
 import ru.fizteh.fivt.storage.structured.Storeable;
+import ru.fizteh.fivt.students.ermolenko.multifilehashmap.MultiFileHashMapUtils;
 
 import java.io.File;
 import java.io.IOException;
@@ -54,8 +55,8 @@ public class StoreableState {
 
     public void deleteTable(String name) throws IOException {
 
+        MultiFileHashMapUtils.deleteDirectory(provider.getTable(name).getDataFile());
         provider.removeTable(name);
-        //MultiFileHashMapUtils.deleteDirectory(provider.getTable(name).getDataFile());
         currentTable = null;
     }
 
