@@ -82,7 +82,7 @@ public class StoreableTable implements Table {
             throw new IllegalArgumentException("Incorrect key or value to put.");
         }
 
-        if (checkExtraColumns(value)) {
+        if (!checkExtraColumns(value)) {
             throw new ColumnFormatException("extra columns found");
         }
 
