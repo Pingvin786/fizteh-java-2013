@@ -10,7 +10,7 @@ public class FileMapUtils {
 
     private static final long MAX_SIZE = 1024 * 1024;
 
-    private static String readKey(DataInputStream dataStream) throws IOException {
+    public static String readKey(DataInputStream dataStream) throws IOException {
 
         ByteArrayOutputStream byteOutputStream = new ByteArrayOutputStream();
         byte b = dataStream.readByte();
@@ -44,6 +44,61 @@ public class FileMapUtils {
         return value;
     }
 
+    public static void checkKeyPlacement(String key, int directNumber, int fileNumber) throws IOException {
+
+        int byteOfKey = key.getBytes(StandardCharsets.UTF_8)[0];
+        int nDirectory = Math.abs(byteOfKey) % 16;
+        if (directNumber != nDirectory) {
+            throw new IOException("wrong key placement");
+        }
+        int nFile = Math.abs(byteOfKey) / 16 % 16;
+        if (fileNumber != nFile) {
+            throw new IOException("wrong key placement");
+        }
+    }
+
+    public static void readAndCheckDataBase(FileMapState state, int directNumber, int fileNumber) throws IOException {
+
+        if (state.getDataFile().length() == 0) {
+            return;
+        }
+
+        InputStream currentStream = new FileInputStream(state.getDataFile());
+        BufferedInputStream bufferStream = new BufferedInputStream(currentStream, 4096);
+        DataInputStream dataStream = new DataInputStream(bufferStream);
+
+        int fileLength = (int) state.getDataFile().length();
+
+        try {
+            int position = 0;
+            String key1 = readKey(dataStream);
+            checkKeyPlacement(key1, directNumber, fileNumber);
+
+            position += key1.getBytes(StandardCharsets.UTF_8).length;
+            int offset1 = dataStream.readInt();
+            int firstOffset = offset1;
+            position += 5;
+            while (position != firstOffset) {
+                if (firstOffset > fileLength) {
+                }
+                String key2 = readKey(dataStream);
+                checkKeyPlacement(key2, directNumber, fileNumber);
+
+                position += key2.getBytes(StandardCharsets.UTF_8).length;
+                int offset2 = dataStream.readInt();
+                position += 5;
+                String value = readValue(dataStream, offset1, offset2, position, fileLength);
+                state.getDataBase().put(key1, value);
+                offset1 = offset2;
+                key1 = key2;
+            }
+            String value = readValue(dataStream, offset1, fileLength, position, fileLength);
+            state.getDataBase().put(key1, value);
+        } finally {
+            closeStream(dataStream);
+        }
+    }
+
     public static void readDataBase(FileMapState state) throws IOException {
 
         if (state.getDataFile().length() == 0) {
@@ -68,6 +123,7 @@ public class FileMapUtils {
                 if (firstOffset > fileLength) {
                 }
                 String key2 = readKey(dataStream);
+
                 position += key2.getBytes(StandardCharsets.UTF_8).length;
                 int offset2 = dataStream.readInt();
                 position += 5;

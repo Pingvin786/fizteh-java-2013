@@ -3,8 +3,7 @@ package ru.fizteh.fivt.students.ermolenko.multifilehashmap;
 import ru.fizteh.fivt.students.ermolenko.filemap.FileMapState;
 import ru.fizteh.fivt.students.ermolenko.filemap.FileMapUtils;
 
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
@@ -42,7 +41,7 @@ public class MultiFileHashMapUtils {
                 }
                 FileMapState state = new FileMapState(currentFile);
                 state.setDataBase(currentMap);
-                FileMapUtils.readDataBase(state);
+                FileMapUtils.readAndCheckDataBase(state, directNumber, fileNumber);
             }
         }
     }
