@@ -1,6 +1,5 @@
 package ru.fizteh.fivt.students.ermolenko.storable;
 
-import ru.fizteh.fivt.storage.structured.ColumnFormatException;
 import ru.fizteh.fivt.storage.structured.Storeable;
 import ru.fizteh.fivt.students.ermolenko.filemap.FileMapUtils;
 import ru.fizteh.fivt.students.ermolenko.multifilehashmap.MultiFileHashMapUtils;
@@ -16,6 +15,8 @@ public class StoreableUtils {
 
     public static Class<?> convertStringToClass(String inString) throws IOException {
 
+        return StoreableEnum.getClassByName(inString);
+        /*
         if (inString.equals("int")) {
             return Integer.class;
         } else if (inString.equals("long")) {
@@ -33,6 +34,7 @@ public class StoreableUtils {
         } else {
             throw new IOException("type has wrong format");
         }
+        */
     }
 
     private static String readType(DataInputStream inDataStream) throws IOException {
@@ -95,6 +97,7 @@ public class StoreableUtils {
         }
     }
 
+    /*
     private static Object parseValue(String s, Class<?> classType) {
 
         try {
@@ -120,9 +123,11 @@ public class StoreableUtils {
             throw new ColumnFormatException("column format error");
         }
     }
-
+    */
     private static String convertClassToString(Class<?> type) throws IOException {
 
+        return StoreableEnum.getNameByClass(type);
+        /*
         String s = type.getName();
         if (s.equals("java.lang.Integer")) {
             return "int";
@@ -141,6 +146,7 @@ public class StoreableUtils {
         } else {
             throw new IOException("write error");
         }
+        */
     }
 
     public static void writeSignature(File directory, List<Class<?>> columnTypes) throws IOException {

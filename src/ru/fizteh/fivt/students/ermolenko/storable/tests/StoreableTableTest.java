@@ -12,13 +12,6 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Created with IntelliJ IDEA.
- * User: evgenij
- * Date: 10.11.13
- * Time: 0:54
- * To change this template use File | Settings | File Templates.
- */
 public class StoreableTableTest {
 
     private static StoreableTableProviderFactory tableProviderFactory = new StoreableTableProviderFactory();
@@ -239,4 +232,5 @@ public class StoreableTableTest {
 
         Assert.assertTrue(testStorable.equals(testStorable));
     }
+
 }

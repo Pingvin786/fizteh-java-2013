@@ -108,7 +108,7 @@ public class StoreableTableProvider implements TableProvider {
         }
 
         if (mapOfTables.get(name) == null) {
-            throw new IllegalStateException("bot existing table");
+            throw new IllegalStateException("not existing table");
         }
 
         mapOfTables.remove(name);

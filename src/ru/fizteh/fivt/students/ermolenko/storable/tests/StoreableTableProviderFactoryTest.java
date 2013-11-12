@@ -1,24 +1,30 @@
 package ru.fizteh.fivt.students.ermolenko.storable.tests;
 
-import org.junit.After;
+import org.junit.AfterClass;
 import org.junit.Assert;
+import org.junit.BeforeClass;
 import org.junit.Test;
-import ru.fizteh.fivt.students.ermolenko.multifilehashmap.MultiFileHashMapUtils;
 import ru.fizteh.fivt.students.ermolenko.storable.StoreableTableProviderFactory;
 
 import java.io.File;
 
 public class StoreableTableProviderFactoryTest {
 
+    private static File database;
     private StoreableTableProviderFactory tableProviderFactory = new StoreableTableProviderFactory();
 
-    @After
-    public void tearDown() throws Exception {
-
-        File file = new File("javatest");
-        if (file.exists()) {
-            MultiFileHashMapUtils.deleteDirectory(file);
+    @BeforeClass
+    public static void setUpBeforeClass() throws Exception {
+        database = new File("newNotExistedTable").getCanonicalFile();
+        if (database.isFile()) {
+            database.delete();
         }
+        database.mkdir();
+    }
+
+    @AfterClass
+    public static void tearDownAfterClass() throws Exception {
+        database.delete();
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -42,6 +48,6 @@ public class StoreableTableProviderFactoryTest {
     @Test
     public void testCreateNotExisted() throws Exception {
 
-        Assert.assertNotNull(tableProviderFactory.create("javatest"));
+        Assert.assertNotNull(tableProviderFactory.create("newNotExistedTable"));
     }
 }
