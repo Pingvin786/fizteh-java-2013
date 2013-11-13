@@ -15,8 +15,8 @@ public class StoreableUtils {
 
     public static Class<?> convertStringToClass(String inString) throws IOException {
 
-        return StoreableEnum.getClassByName(inString);
-        /*
+        //return StoreableEnum.getClassByName(inString);
+
         if (inString.equals("int")) {
             return Integer.class;
         } else if (inString.equals("long")) {
@@ -34,7 +34,7 @@ public class StoreableUtils {
         } else {
             throw new IOException("type has wrong format");
         }
-        */
+
     }
 
     private static String readType(DataInputStream inDataStream) throws IOException {
