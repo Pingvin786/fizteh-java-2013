@@ -117,7 +117,7 @@ public class StoreableTableProvider implements TableProvider {
     public static Object getObject(String string, String expectedClassName) throws ParseException {
 
         try {
-            return StoreableEnum.parseValueWithClass(string, expectedClassName.getClass());
+            return StoreableEnum.parseValueWithClass(string, StoreableEnum.getClassByName(expectedClassName));
         } catch (NumberFormatException e) {
             throw new ParseException("", 0);
         }
@@ -137,7 +137,8 @@ public class StoreableTableProvider implements TableProvider {
             throw new ParseException("xml reading error", 0);
         }
         List<Class<?>> columnTypes = new ArrayList<Class<?>>();
-        for (int i = 0; i < table.getColumnsCount(); ++i) {
+        int columnCount = table.getColumnsCount();
+        for (int i = 0; i < columnCount; ++i) {
             columnTypes.add(table.getColumnType(i));
         }
         MyStoreable storeable = new MyStoreable(columnTypes);

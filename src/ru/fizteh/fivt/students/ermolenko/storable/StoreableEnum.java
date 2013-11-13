@@ -55,21 +55,38 @@ public enum StoreableEnum {
 
     private static Map<String, StoreableEnum> dataBaseNamesToType;
     private static Map<Class<?>, StoreableEnum> dataBaseClassesToType;
+    private static Map<String, String> dataBaseCorrectNamesOfClasses;
 
     static {
 
         Map<String, StoreableEnum> dataBaseNamesAndTypes = new HashMap<String, StoreableEnum>();
         Map<Class<?>, StoreableEnum> dataBaseClassesAndTypes = new HashMap<Class<?>, StoreableEnum>();
+        Map<String, String> tmp = new HashMap<String, String>();
         for (StoreableEnum type : values()) {
             dataBaseNamesAndTypes.put(type.nameOfClass, type);
             dataBaseClassesAndTypes.put(type.theClass, type);
         }
+        tmp.put("Integer", "int");
+        tmp.put("Long", "long");
+        tmp.put("Byte", "byte");
+        tmp.put("String", "String");
+        tmp.put("Boolean", "boolean");
+        tmp.put("Double", "double");
+        tmp.put("Float", "float");
         dataBaseNamesToType = Collections.unmodifiableMap(dataBaseNamesAndTypes);
         dataBaseClassesToType = Collections.unmodifiableMap(dataBaseClassesAndTypes);
+        dataBaseCorrectNamesOfClasses = Collections.unmodifiableMap(tmp);
     }
 
     public static Class<?> getClassByName(String name) {
 
+        name = name.toLowerCase();
+        if (name.equals("integer")) {
+            name = "int";
+        }
+        if (name.equals("string")) {
+            name = "String";
+        }
         StoreableEnum types = dataBaseNamesToType.get(name);
         if (types == null) {
             throw new IllegalArgumentException("I don't know this type name");

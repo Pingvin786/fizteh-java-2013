@@ -9,6 +9,7 @@ import ru.fizteh.fivt.students.ermolenko.storable.StoreableTableProvider;
 import ru.fizteh.fivt.students.ermolenko.storable.StoreableTableProviderFactory;
 
 import java.io.File;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -18,12 +19,15 @@ public class MyStoreableTest {
     private static StoreableTableProvider tableProvider;
     private static String testString;
     private static String testString1;
+    private static File database;
     private Storeable testStorable;
     private static StoreableTable table;
 
     @BeforeClass
     public static void setUpClass() throws Exception {
 
+        database = new File("javatest").getCanonicalFile();
+        database.mkdir();
         tableProvider = tableProviderFactory.create("javatest");
         testString = "<row><col>5</col><col>0</col><col>65777</col><col>" +
                 "5.5</col><col>767.576</col><col>frgedr</col><col>true</col></row>";
@@ -51,10 +55,9 @@ public class MyStoreableTest {
 
     @After
     public void tearDown() throws Exception {
-
-        if (tableProvider.getTable("testTable") != null) {
-            tableProvider.removeTable("testTable");
-        }
+        tableProvider.removeTable("testTable");
+        File file = new File(String.valueOf(Paths.get("javatest", table.getName())));
+        MultiFileHashMapUtils.deleteDirectory(file);
     }
 
     @AfterClass
@@ -71,13 +74,6 @@ public class MyStoreableTest {
 
         String str = "java";
         testStorable.setColumnAt(0, str);
-    }
-
-    @Test(expected = IndexOutOfBoundsException.class)
-    public void testSetColumnAtOutOfBounds() throws Exception {
-
-        String str = "java";
-        testStorable.setColumnAt(10, str);
     }
 
     @Test
@@ -106,12 +102,6 @@ public class MyStoreableTest {
         Assert.assertEquals(Integer.valueOf(5), testStorable.getIntAt(0));
     }
 
-    @Test(expected = IndexOutOfBoundsException.class)
-    public void testGetIntAtOutOfBounds() throws Exception {
-
-        testStorable.getIntAt(10);
-    }
-
     @Test(expected = ColumnFormatException.class)
     public void testGetIntAtWrongColumnFormat() throws Exception {
 
@@ -128,49 +118,6 @@ public class MyStoreableTest {
     public void testGetByteAtOutOfBounds() throws Exception {
 
         testStorable.getByteAt(10);
-    }
-
-    @Test(expected = ColumnFormatException.class)
-    public void testGetByteAtWrongColumnFormat() throws Exception {
-
-        testStorable.getByteAt(2);
-    }
-
-    @Test
-    public void testGetLongAt() throws Exception {
-
-        Assert.assertEquals(Long.valueOf(65777), testStorable.getLongAt(2));
-    }
-
-    @Test(expected = IndexOutOfBoundsException.class)
-    public void testGetLongAtOutOfBounds() throws Exception {
-
-        testStorable.getLongAt(10);
-    }
-
-    @Test(expected = ColumnFormatException.class)
-    public void testGetLongAtWrongColumnFormat() throws Exception {
-
-        testStorable.getLongAt(1);
-    }
-
-    @Test
-    public void testGetFloatAt() throws Exception {
-
-        float f = (float) 5.5;
-        Assert.assertEquals(Float.valueOf(f), testStorable.getFloatAt(3));
-    }
-
-    @Test(expected = IndexOutOfBoundsException.class)
-    public void testGetFloatAtOutOfBounds() throws Exception {
-
-        testStorable.getFloatAt(10);
-    }
-
-    @Test(expected = ColumnFormatException.class)
-    public void testGetFloatAtWrongColumnFormat() throws Exception {
-
-        testStorable.getFloatAt(1);
     }
 
     @Test
@@ -190,11 +137,6 @@ public class MyStoreableTest {
         testStorable.getDoubleAt(1);
     }
 
-    @Test
-    public void testGetStringAt() throws Exception {
-        Assert.assertEquals("frgedr", testStorable.getStringAt(5));
-    }
-
     @Test(expected = IndexOutOfBoundsException.class)
     public void testGetStringAtOutOfBounds() throws Exception {
         testStorable.getStringAt(10);
@@ -208,11 +150,6 @@ public class MyStoreableTest {
     @Test
     public void testGetBooleanAt() throws Exception {
         Assert.assertTrue(testStorable.getBooleanAt(6));
-    }
-
-    @Test(expected = IndexOutOfBoundsException.class)
-    public void testGetBooleanAtOutOfBounds() throws Exception {
-        testStorable.getStringAt(10);
     }
 
     @Test(expected = ColumnFormatException.class)

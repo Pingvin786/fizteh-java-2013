@@ -8,6 +8,7 @@ import ru.fizteh.fivt.students.ermolenko.storable.StoreableTableProvider;
 import ru.fizteh.fivt.students.ermolenko.storable.StoreableTableProviderFactory;
 
 import java.io.File;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -16,12 +17,16 @@ public class StoreableTableTest {
     private static StoreableTableProviderFactory tableProviderFactory = new StoreableTableProviderFactory();
     private static StoreableTableProvider tableProvider;
     private static String testString;
-    private static Storeable testStorable;
     private static String testString1;
+    private static Storeable testStorable;
+    private static File database;
     private StoreableTable table;
 
     @BeforeClass
     public static void setUpClass() throws Exception {
+
+        database = new File("javatest").getCanonicalFile();
+        database.mkdir();
         tableProvider = tableProviderFactory.create("javatest");
         testString = "<row><col>5</col><col>0</col><col>65777</col><col>" +
                 "5.5</col><col>767.576</col><col>frgedr</col><col>true</col></row>";
@@ -49,6 +54,8 @@ public class StoreableTableTest {
     @After
     public void tearDown() throws Exception {
         tableProvider.removeTable("testTable");
+        File file = new File(String.valueOf(Paths.get("javatest", table.getName())));
+        MultiFileHashMapUtils.deleteDirectory(file);
     }
 
     @AfterClass
