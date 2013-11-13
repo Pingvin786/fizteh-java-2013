@@ -1,9 +1,8 @@
 package ru.fizteh.fivt.students.ermolenko.storable.tests;
 
 import org.junit.*;
-import ru.fizteh.fivt.storage.structured.ColumnFormatException;
+import ru.fizteh.fivt.storage.structured.Storeable;
 import ru.fizteh.fivt.students.ermolenko.multifilehashmap.MultiFileHashMapUtils;
-import ru.fizteh.fivt.students.ermolenko.storable.MyStoreable;
 import ru.fizteh.fivt.students.ermolenko.storable.StoreableTable;
 import ru.fizteh.fivt.students.ermolenko.storable.StoreableTableProvider;
 import ru.fizteh.fivt.students.ermolenko.storable.StoreableTableProviderFactory;
@@ -17,13 +16,12 @@ public class StoreableTableTest {
     private static StoreableTableProviderFactory tableProviderFactory = new StoreableTableProviderFactory();
     private static StoreableTableProvider tableProvider;
     private static String testString;
+    private static Storeable testStorable;
     private static String testString1;
-    private MyStoreable testStorable;
-    private static StoreableTable table;
+    private StoreableTable table;
 
     @BeforeClass
     public static void setUpClass() throws Exception {
-
         tableProvider = tableProviderFactory.create("javatest");
         testString = "<row><col>5</col><col>0</col><col>65777</col><col>" +
                 "5.5</col><col>767.576</col><col>frgedr</col><col>true</col></row>";
@@ -33,7 +31,6 @@ public class StoreableTableTest {
 
     @Before
     public void setUp() throws Exception {
-
         if (tableProvider.getTable("testTable") != null) {
             tableProvider.removeTable("testTable");
         }
@@ -51,186 +48,201 @@ public class StoreableTableTest {
 
     @After
     public void tearDown() throws Exception {
-
-        if (tableProvider.getTable("testTable") != null) {
-            tableProvider.removeTable("testTable");
-        }
+        tableProvider.removeTable("testTable");
     }
 
     @AfterClass
     public static void tearDownClass() throws Exception {
-
         File file = new File("javatest");
         if (file.exists()) {
             MultiFileHashMapUtils.deleteDirectory(file);
         }
     }
 
-    @Test(expected = ColumnFormatException.class)
-    public void testSetColumnAtWrongColumnFormat() throws Exception {
+    @Test
+    public void testGetName() throws Exception {
+        Assert.assertEquals(table.getName(), "testTable");
+    }
 
-        String str = "java";
-        testStorable.setColumnAt(0, str);
+    @Test
+    public void testGetEnglish() throws Exception {
+        table.put("testGetEnglishKey", testStorable);
+        Assert.assertEquals(table.get("testGetEnglishKey"), testStorable);
+    }
+
+    @Test
+    public void testGetRussian() throws Exception {
+        table.put("ключ", testStorable);
+        Assert.assertEquals(table.get("ключ"), testStorable);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testGetNull() throws Exception {
+        table.get(null);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testGetEmpty() throws Exception {
+        table.get("");
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testGetNl() throws Exception {
+        table.get("    ");
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testGetKeyWithWhitespaces() throws Exception {
+        table.get("one two three");
+    }
+
+    @Test
+    public void testPutNew() throws Exception {
+        Assert.assertNull(table.put("testPutNewKey", testStorable));
+        table.remove("testPutNewKey");
+    }
+
+    @Test
+    public void testPutOld() throws Exception {
+        Storeable storeable = tableProvider.deserialize(table, testString1);
+        table.put("testPutOldKey", testStorable);
+        Assert.assertEquals(table.put("testPutOldKey", storeable), testStorable);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testPutNullKey() throws Exception {
+        table.put(null, testStorable);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testPutEmptyKey() throws Exception {
+        table.put("", testStorable);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testPutNlKey() throws Exception {
+        table.put("   ", testStorable);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testPutKeyWithWhitespaces() throws Exception {
+        table.put("one two three", testStorable);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testPutNullValue() throws Exception {
+        table.put("testPutNullValueKey", null);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testPutAlienValue() throws Exception {
+        List<Class<?>> list = new ArrayList<Class<?>>();
+        list.add(String.class);
+        StoreableTable table1 = tableProvider.createTable("table1", list);
+        Storeable storeable = tableProvider.deserialize(table1, "<row><col>jtfh</col></row>");
+        table.put("testPutNullValueKey", storeable);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testRemoveNull() throws Exception {
+        table.remove(null);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testRemoveEmpty() throws Exception {
+        table.remove("");
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testRemoveKeyWithWhitespaces() throws Exception {
+        table.get("one two three");
+    }
+
+    @Test
+    public void testRemoveExisted() throws Exception {
+        table.put("testRemoveExistedKey", testStorable);
+        Assert.assertEquals(table.remove("testRemoveExistedKey"), testStorable);
+    }
+
+    @Test
+    public void testRemoveNotExisted() throws Exception {
+        Assert.assertNull(table.remove("testRemoveNotExistedKey"));
+    }
+
+    @Test
+    public void testSize() throws Exception {
+        table.put("testSizeKey1", testStorable);
+        table.put("testSizeKey2", testStorable);
+        table.put("testSizeKey3", testStorable);
+        Assert.assertEquals(table.size(), 3);
+    }
+
+    @Test
+    public void testPutRollback() throws Exception {
+        table.put("testPutRollbackKey1", testStorable);
+        table.put("testPutRollbackKey2", testStorable);
+        table.put("testPutRollbackKey3", testStorable);
+        Assert.assertEquals(table.rollback(), 3);
+    }
+
+    @Test
+    public void testPutRemoveRollback() throws Exception {
+        table.put("testPutRemoveRollbackKey", testStorable);
+        table.remove("testPutRemoveRollbackKey");
+        Assert.assertEquals(table.rollback(), 0);
+    }
+
+    @Test
+    public void testRemovePutRollback() throws Exception {
+        table.put("testRemovePutRollbackKey", testStorable);
+        table.commit();
+        table.remove("testPutRemoveRollbackKey");
+        table.put("testRemovePutRollbackKey", testStorable);
+        Assert.assertEquals(table.rollback(), 0);
+    }
+
+    @Test
+    public void testPutCommit() throws Exception {
+        table.put("testPutCommitKey1", testStorable);
+        table.put("testPutCommitKey2", testStorable);
+        table.put("testPutCommitKey3", testStorable);
+        Assert.assertEquals(table.commit(), 3);
+    }
+
+    @Test
+    public void testPutRemoveCommit() throws Exception {
+        table.put("testPutRemoveCommitKey", testStorable);
+        table.remove("testPutRemoveCommitKey");
+        Assert.assertEquals(table.commit(), 0);
+    }
+
+    @Test
+    public void testRemovePutCommit() throws Exception {
+        table.put("testRemovePutCommitKey", testStorable);
+        table.commit();
+        table.remove("testPutRemoveCommitKey");
+        table.put("testRemovePutCommitKey", testStorable);
+        Assert.assertEquals(table.commit(), 0);
+    }
+
+    @Test
+    public void testGetColumnsCount() throws Exception {
+        Assert.assertEquals(7, table.getColumnsCount());
+    }
+
+    @Test
+    public void testGetColumnType() throws Exception {
+        Assert.assertEquals(Integer.class, table.getColumnType(0));
+        Assert.assertEquals(Byte.class, table.getColumnType(1));
+        Assert.assertEquals(Long.class, table.getColumnType(2));
+        Assert.assertEquals(Float.class, table.getColumnType(3));
+        Assert.assertEquals(Double.class, table.getColumnType(4));
+        Assert.assertEquals(String.class, table.getColumnType(5));
+        Assert.assertEquals(Boolean.class, table.getColumnType(6));
     }
 
     @Test(expected = IndexOutOfBoundsException.class)
-    public void testSetColumnAtOutOfBounds() throws Exception {
-
-        String str = "java";
-        testStorable.setColumnAt(10, str);
+    public void testGetColumnTypeOutOfBounds() throws Exception {
+        table.getColumnType(10);
     }
-
-    @Test
-    public void testSetColumnAt() throws Exception {
-
-        String str = "java";
-        testStorable.setColumnAt(5, str);
-        Assert.assertEquals(str, testStorable.getStringAt(5));
-    }
-
-    @Test(expected = IndexOutOfBoundsException.class)
-    public void testGetColumnAtOutOfBounds() throws Exception {
-
-        testStorable.getColumnAt(10);
-    }
-
-    @Test
-    public void testGetColumnAt() throws Exception {
-
-        Assert.assertEquals(5, testStorable.getColumnAt(0));
-    }
-
-    @Test
-    public void testGetIntAt() throws Exception {
-
-        Assert.assertEquals(Integer.valueOf(5), testStorable.getIntAt(0));
-    }
-
-    @Test(expected = IndexOutOfBoundsException.class)
-    public void testGetIntAtOutOfBounds() throws Exception {
-
-        testStorable.getIntAt(10);
-    }
-
-    @Test(expected = ColumnFormatException.class)
-    public void testGetIntAtWrongColumnFormat() throws Exception {
-
-        testStorable.getIntAt(1);
-    }
-
-    @Test
-    public void testGetByteAt() throws Exception {
-
-        Assert.assertEquals(Byte.valueOf("0"), testStorable.getByteAt(1));
-    }
-
-    @Test(expected = IndexOutOfBoundsException.class)
-    public void testGetByteAtOutOfBounds() throws Exception {
-
-        testStorable.getByteAt(10);
-    }
-
-    @Test(expected = ColumnFormatException.class)
-    public void testGetByteAtWrongColumnFormat() throws Exception {
-
-        testStorable.getByteAt(2);
-    }
-
-    @Test
-    public void testGetLongAt() throws Exception {
-
-        Assert.assertEquals(Long.valueOf(65777), testStorable.getLongAt(2));
-    }
-
-    @Test(expected = IndexOutOfBoundsException.class)
-    public void testGetLongAtOutOfBounds() throws Exception {
-
-        testStorable.getLongAt(10);
-    }
-
-    @Test(expected = ColumnFormatException.class)
-    public void testGetLongAtWrongColumnFormat() throws Exception {
-
-        testStorable.getLongAt(1);
-    }
-
-    @Test
-    public void testGetFloatAt() throws Exception {
-
-        float f = (float) 5.5;
-        Assert.assertEquals(Float.valueOf(f), testStorable.getFloatAt(3));
-    }
-
-    @Test(expected = IndexOutOfBoundsException.class)
-    public void testGetFloatAtOutOfBounds() throws Exception {
-
-        testStorable.getFloatAt(10);
-    }
-
-    @Test(expected = ColumnFormatException.class)
-    public void testGetFloatAtWrongColumnFormat() throws Exception {
-
-        testStorable.getFloatAt(1);
-    }
-
-    @Test
-    public void testGetDoubleAt() throws Exception {
-
-        Assert.assertEquals((Double) 767.576, testStorable.getDoubleAt(4));
-    }
-
-    @Test(expected = IndexOutOfBoundsException.class)
-    public void testGetDoubleAtOutOfBounds() throws Exception {
-
-        testStorable.getDoubleAt(10);
-    }
-
-    @Test(expected = ColumnFormatException.class)
-    public void testGetDoubleAtWrongColumnFormat() throws Exception {
-
-        testStorable.getDoubleAt(1);
-    }
-
-    @Test
-    public void testGetStringAt() throws Exception {
-
-        Assert.assertEquals("frgedr", testStorable.getStringAt(5));
-    }
-
-    @Test(expected = IndexOutOfBoundsException.class)
-    public void testGetStringAtOutOfBounds() throws Exception {
-
-        testStorable.getStringAt(10);
-    }
-
-    @Test(expected = ColumnFormatException.class)
-    public void testGetStringAtWrongColumnFormat() throws Exception {
-
-        testStorable.getStringAt(1);
-    }
-
-    @Test
-    public void testGetBooleanAt() throws Exception {
-
-        Assert.assertTrue(testStorable.getBooleanAt(6));
-    }
-
-    @Test(expected = IndexOutOfBoundsException.class)
-    public void testGetBooleanAtOutOfBounds() throws Exception {
-
-        testStorable.getStringAt(10);
-    }
-
-    @Test(expected = ColumnFormatException.class)
-    public void testGetBooleanAtWrongColumnFormat() throws Exception {
-
-        testStorable.getStringAt(1);
-    }
-
-    @Test
-    public void testEqualsTrue() throws Exception {
-
-        Assert.assertTrue(testStorable.equals(testStorable));
-    }
-
 }

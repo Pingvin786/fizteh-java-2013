@@ -1,6 +1,7 @@
 package ru.fizteh.fivt.students.ermolenko.storable.tests;
 
 import org.junit.AfterClass;
+import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import ru.fizteh.fivt.students.ermolenko.multifilehashmap.MultiFileHashMapUtils;
@@ -30,7 +31,7 @@ public class StoreableTableProviderTest {
     }
 
     @AfterClass
-    public static void tearDownClass() throws Exception {
+    public static void tearDownAfterClass() throws Exception {
 
         File file = new File("javatest");
         if (file.exists()) {
@@ -80,5 +81,19 @@ public class StoreableTableProviderTest {
     public void deleteNotExistingTable() throws Exception {
 
         tableProvider.removeTable("notExistingTable");
+    }
+
+    @Test
+    public void createExistingTable() throws Exception {
+
+        tableProvider.createTable("newTable", typeList);
+        Assert.assertNull(tableProvider.createTable("newTable", typeList));
+        tableProvider.removeTable("newTable");
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void getEmptyNameOfTable() {
+
+        tableProvider.getTable("");
     }
 }

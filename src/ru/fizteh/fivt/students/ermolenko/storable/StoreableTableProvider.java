@@ -115,24 +115,9 @@ public class StoreableTableProvider implements TableProvider {
     }
 
     public static Object getObject(String string, String expectedClassName) throws ParseException {
+
         try {
-            if (expectedClassName.equals("String")) {
-                return string;
-            } else if (expectedClassName.equals("Integer")) {
-                return Integer.parseInt(string);
-            } else if (expectedClassName.equals("Long")) {
-                return Long.parseLong(string);
-            } else if (expectedClassName.equals("Byte")) {
-                return Byte.parseByte(string);
-            } else if (expectedClassName.equals("Float")) {
-                return Float.parseFloat(string);
-            } else if (expectedClassName.equals("Double")) {
-                return Double.parseDouble(string);
-            } else if (expectedClassName.equals("Boolean")) {
-                return Boolean.parseBoolean(string);
-            } else {
-                throw new ParseException("", 0);
-            }
+            return StoreableEnum.parseValueWithClass(string, expectedClassName.getClass());
         } catch (NumberFormatException e) {
             throw new ParseException("", 0);
         }
