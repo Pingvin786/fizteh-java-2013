@@ -35,6 +35,7 @@ public class StoreableUtils {
             throw new IOException("type has wrong format");
         }
         */
+
     }
 
     private static String readType(DataInputStream inDataStream) throws IOException {
