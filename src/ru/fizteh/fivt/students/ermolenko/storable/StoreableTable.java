@@ -7,23 +7,40 @@ import ru.fizteh.fivt.storage.structured.Table;
 import java.io.File;
 import java.io.IOException;
 import java.util.*;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 public class StoreableTable implements Table {
 
     private List<Class<?>> columnOfTypes;
     private StoreableTableProvider tableProvider;
-    private Map<String, Storeable> dataBase;
-    private Map<String, Storeable> changesBase;
+    private ThreadLocal<HashMap<String, Storeable>> dataBase;
+    private ThreadLocal<HashMap<String, Storeable>> changesBase;
     private File dataFile;
-    private int sizeTable;
-
+    private ThreadLocal<Integer> sizeTable;
+    protected final Lock tableLock = new ReentrantLock(true);
 
     public StoreableTable(File inFile, StoreableTableProvider inTableProvider) throws IOException {
 
         columnOfTypes = new ArrayList<Class<?>>();
         tableProvider = inTableProvider;
-        dataBase = new HashMap<String, Storeable>();
-        changesBase = new HashMap<String, Storeable>();
+
+        dataBase = new ThreadLocal<HashMap<String, Storeable>>() {
+            public HashMap<String, Storeable> initialValue() {
+                return new HashMap<String, Storeable>();
+            }
+        };
+        changesBase = new ThreadLocal<HashMap<String, Storeable>>() {
+            public HashMap<String, Storeable> initialValue() {
+                return new HashMap<String, Storeable>();
+            }
+        };
+        sizeTable = new ThreadLocal<Integer>() {
+            public Integer initialValue() {
+                return 0;
+            }
+        };
+
         dataFile = inFile;
         File signatureFile = new File(inFile, "signature.tsv");
         StoreableUtils.readSignature(signatureFile, columnOfTypes);
@@ -46,17 +63,16 @@ public class StoreableTable implements Table {
             throw new IllegalArgumentException("Incorrect key to get");
         }
 
-
         Storeable returnValue;
-        if (changesBase.containsKey(newKey)) {
-            if (changesBase.get(newKey) == null) {
+        if (changesBase.get().containsKey(newKey)) {
+            if (changesBase.get().get(newKey) == null) {
                 returnValue = null;
             } else {
-                returnValue = changesBase.get(newKey);
+                returnValue = changesBase.get().get(newKey);
             }
         } else {
-            if (dataBase.containsKey(newKey)) {
-                returnValue = dataBase.get(newKey);
+            if (dataBase.get().containsKey(newKey)) {
+                returnValue = dataBase.get().get(newKey);
             } else {
                 returnValue = null;
             }
@@ -97,14 +113,16 @@ public class StoreableTable implements Table {
             throw new ColumnFormatException("less number of columns");
         }
 
-        if ((!changesBase.containsKey(key) && !dataBase.containsKey(key)) ||
-                (changesBase.containsKey(key) && changesBase.get(key) == null)) {
-            ++sizeTable;
+        if ((!changesBase.get().containsKey(key) && !dataBase.get().containsKey(key)) ||
+                (changesBase.get().containsKey(key) && changesBase.get().get(key) == null)) {
+            //исправлено
+            //эквивалент инкремента
+            sizeTable.set(Integer.valueOf(sizeTable.get().intValue() + 1));
         }
         Storeable result = get(key);
-        changesBase.put(key, value);
-        if (value.equals(dataBase.get(key))) {
-            changesBase.remove(key);
+        changesBase.get().put(key, value);
+        if (value.equals(dataBase.get().get(key))) {
+            changesBase.get().remove(key);
         }
 
         return result;
@@ -123,13 +141,14 @@ public class StoreableTable implements Table {
         }
 
 
-        if (changesBase.get(newKey) != null || (!changesBase.containsKey(newKey) && dataBase.get(newKey) != null)) {
-            --sizeTable;
+        if (changesBase.get().get(newKey) != null || (!changesBase.get().containsKey(newKey) && dataBase.get().get(newKey) != null)) {
+            //изменено
+            sizeTable.set(Integer.valueOf(sizeTable.get().intValue() - 1));
         }
         Storeable result = get(newKey);
-        changesBase.put(newKey, null);
-        if (dataBase.get(newKey) == null) {
-            changesBase.remove(newKey);
+        changesBase.get().put(newKey, null);
+        if (dataBase.get().get(newKey) == null) {
+            changesBase.get().remove(newKey);
         }
         return result;
     }
@@ -137,41 +156,45 @@ public class StoreableTable implements Table {
     @Override
     public int size() {
 
-        return sizeTable;
+        return sizeTable.get();
     }
 
     @Override
     public int commit() throws IOException {
 
-        int size = changesBase.size();
         try {
-            if (size != 0) {
-                Set<Map.Entry<String, Storeable>> set = changesBase.entrySet();
-                for (Map.Entry<String, Storeable> pair : set) {
-                    pair.getKey();
-                    if (pair.getValue() == null) {
-                        dataBase.remove(pair.getKey());
-                    } else {
-                        dataBase.put(pair.getKey(), pair.getValue());
+            tableLock.lock();
+            int size = changesBase.get().size();
+            try {
+                if (size != 0) {
+                    Set<Map.Entry<String, Storeable>> set = changesBase.get().entrySet();
+                    for (Map.Entry<String, Storeable> pair : set) {
+                        pair.getKey();
+                        if (pair.getValue() == null) {
+                            dataBase.get().remove(pair.getKey());
+                        } else {
+                            dataBase.get().put(pair.getKey(), pair.getValue());
+                        }
                     }
+                    StoreableUtils.write(dataFile, this, dataBase.get(), tableProvider);
                 }
-                StoreableUtils.write(dataFile, this, dataBase, tableProvider);
+            } catch (IOException e) {
+                System.err.println(e);
             }
-        } catch (IOException e) {
-            System.err.println(e);
+            changesBase.get().clear();
+            sizeTable.set(dataBase.get().size());
+            return size;
+        } finally {
+            tableLock.unlock();
         }
-
-        changesBase.clear();
-        sizeTable = dataBase.size();
-        return size;
     }
 
     @Override
     public int rollback() {
 
-        int size = changesBase.size();
-        changesBase.clear();
-        sizeTable = dataBase.size();
+        int size = changesBase.get().size();
+        changesBase.get().clear();
+        sizeTable.set(dataBase.get().size());
         return size;
     }
 
@@ -189,7 +212,7 @@ public class StoreableTable implements Table {
 
     public int getChangesBaseSize() {
 
-        return changesBase.size();
+        return changesBase.get().size();
     }
 
     public StoreableTableProvider getTableProvider() {
@@ -197,9 +220,9 @@ public class StoreableTable implements Table {
         return tableProvider;
     }
 
-    public Map<String, Storeable> getDataBase() {
+    public HashMap<String, Storeable> getDataBase() {
 
-        return dataBase;
+        return dataBase.get();
     }
 
     public File getDataFile() {
@@ -213,12 +236,12 @@ public class StoreableTable implements Table {
     }
 
     public void changeCurrentTable(List<Class<?>> inColumnOfTypes, StoreableTableProvider inProvider,
-                                   Map<String, Storeable> inDataBase, File inFile) {
+                                   HashMap<String, Storeable> inDataBase, File inFile) {
 
         columnOfTypes = inColumnOfTypes;
         tableProvider = inProvider;
-        dataBase = inDataBase;
+        dataBase.set(inDataBase);
         dataFile = inFile;
-        sizeTable = dataBase.size();
+        sizeTable.set(dataBase.get().size());
     }
 }

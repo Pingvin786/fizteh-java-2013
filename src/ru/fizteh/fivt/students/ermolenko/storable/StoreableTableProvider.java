@@ -15,11 +15,14 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 public class StoreableTableProvider implements TableProvider {
 
     private Map<String, StoreableTable> mapOfTables;
     private File currentDir;
+    private Lock tableProviderLock = new ReentrantLock(true);
 
     public StoreableTableProvider(File inDir) throws IOException {
 
@@ -44,74 +47,89 @@ public class StoreableTableProvider implements TableProvider {
     @Override
     public StoreableTable getTable(String name) {
 
-        if (name == null || !name.matches("[0-9a-zA-Zа-яА-Я]+")) {
-            throw new IllegalArgumentException("incorrect name of table");
+        try {
+            tableProviderLock.lock();
+            if (name == null || !name.matches("[0-9a-zA-Zа-яА-Я]+")) {
+                throw new IllegalArgumentException("incorrect name of table");
+            }
+            if (name.trim().equals("")) {
+                throw new IllegalArgumentException("empty table");
+            }
+            return mapOfTables.get(name);
+        } finally {
+            tableProviderLock.unlock();
         }
-        if (name.trim().equals("")) {
-            throw new IllegalArgumentException("empty table");
-        }
-        return mapOfTables.get(name);
     }
 
     @Override
     public StoreableTable createTable(String name, List<Class<?>> columnTypes) throws IOException {
 
-        if (name == null) {
-            throw new IllegalArgumentException("null name to create");
-        }
-        if (name.trim().isEmpty()) {
-            throw new IllegalArgumentException("empty name to get");
-        }
-        if (!name.matches("[a-zA-Zа-яА-Я0-9]+")) {
-            throw new IllegalArgumentException("incorrect name to create");
-        }
-        if (columnTypes == null) {
-            throw new IllegalArgumentException("null columnTypes to create");
-        }
-        if (columnTypes.isEmpty()) {
-            throw new IllegalArgumentException("empty columnTypes to create");
-        }
-
-        File tableFile = new File(currentDir, name);
-
-        if (!tableFile.mkdir()) {
-            return null;
-        }
-
         try {
-            StoreableUtils.writeSignature(tableFile, columnTypes);
-        } catch (IOException e) {
-            throw new IllegalArgumentException("wrong column type table");
-        }
+            tableProviderLock.lock();
+            if (name == null) {
+                throw new IllegalArgumentException("null name to create");
+            }
+            if (name.trim().isEmpty()) {
+                throw new IllegalArgumentException("empty name to get");
+            }
+            if (!name.matches("[a-zA-Zа-яА-Я0-9]+")) {
+                throw new IllegalArgumentException("incorrect name to create");
+            }
+            if (columnTypes == null) {
+                throw new IllegalArgumentException("null columnTypes to create");
+            }
+            if (columnTypes.isEmpty()) {
+                throw new IllegalArgumentException("empty columnTypes to create");
+            }
 
-        StoreableTable table = new StoreableTable(tableFile, this);
-        StoreableTable tmp = mapOfTables.get(name);
-        if (tmp != null) {
-            return null;
-        }
-        mapOfTables.put(name, table);
+            File tableFile = new File(currentDir, name);
 
-        return table;
+            if (!tableFile.mkdir()) {
+                return null;
+            }
+
+            try {
+                StoreableUtils.writeSignature(tableFile, columnTypes);
+            } catch (IOException e) {
+                throw new IllegalArgumentException("wrong column type table");
+            }
+
+            StoreableTable table = new StoreableTable(tableFile, this);
+            StoreableTable tmp = mapOfTables.get(name);
+            if (tmp != null) {
+                return null;
+            }
+            mapOfTables.put(name, table);
+
+            return table;
+        } finally {
+            tableProviderLock.unlock();
+        }
     }
 
     @Override
     public void removeTable(String name) throws IOException {
 
-        if (name == null) {
-            throw new IllegalArgumentException("null name to create");
-        }
-        if (name.trim().isEmpty()) {
-            throw new IllegalArgumentException("empty name to get");
-        }
-        if (!name.matches("[a-zA-Zа-яА-Я0-9]+")) {
-            throw new IllegalArgumentException("incorrect name to create");
-        }
+        try {
+            tableProviderLock.lock();
+            if (name == null) {
+                throw new IllegalArgumentException("null name to create");
+            }
+            if (name.trim().isEmpty()) {
+                throw new IllegalArgumentException("empty name to get");
+            }
+            if (!name.matches("[a-zA-Zа-яА-Я0-9]+")) {
+                throw new IllegalArgumentException("incorrect name to create");
+            }
 
-        if (mapOfTables.get(name) == null) {
-            throw new IllegalStateException("not existing table");
-        }
+            if (mapOfTables.get(name) == null) {
+                throw new IllegalStateException("not existing table");
+            }
 
-        mapOfTables.remove(name);
+            mapOfTables.remove(name);
+        } finally {
+            tableProviderLock.unlock();
+        }
     }
 
     public static Object getObject(String string, String expectedClassName) throws ParseException {
@@ -267,4 +285,3 @@ public class StoreableTableProvider implements TableProvider {
         return storeable;
     }
 }
-

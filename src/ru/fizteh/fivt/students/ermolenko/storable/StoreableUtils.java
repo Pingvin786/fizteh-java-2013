@@ -171,7 +171,7 @@ public class StoreableUtils {
         }
     }
 
-    public static void write(File file, StoreableTable table, Map<String, Storeable> storeableMap,
+    public static void write(File file, StoreableTable table, HashMap<String, Storeable> storeableMap,
                              StoreableTableProvider tableProvider) throws IOException {
 
         Map<String, String> stringMap = new HashMap<String, String>();

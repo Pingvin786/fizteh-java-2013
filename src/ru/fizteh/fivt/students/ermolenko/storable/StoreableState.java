@@ -5,8 +5,8 @@ import ru.fizteh.fivt.students.ermolenko.multifilehashmap.MultiFileHashMapUtils;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 public class StoreableState {
 
@@ -41,7 +41,7 @@ public class StoreableState {
     }
 
     public void setCurrentTable(String name, List<Class<?>> columnOfTypes, StoreableTableProvider provider,
-                                Map<String, Storeable> dataBase, File file) {
+                                HashMap<String, Storeable> dataBase, File file) {
 
         currentTable = provider.getTable(name);
         currentTable.changeCurrentTable(columnOfTypes, provider, dataBase, file);

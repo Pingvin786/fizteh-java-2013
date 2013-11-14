@@ -5,8 +5,8 @@ import ru.fizteh.fivt.students.ermolenko.shell.Command;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 public class CmdUse implements Command<StoreableState> {
 
@@ -40,7 +40,7 @@ public class CmdUse implements Command<StoreableState> {
             return;
         }
 
-        Map<String, Storeable> tmpDataBase = inState.getTable(args[0]).getDataBase();
+        HashMap<String, Storeable> tmpDataBase = inState.getTable(args[0]).getDataBase();
         File tmpDataFile = inState.getTable(args[0]).getDataFile();
         List<Class<?>> tmpColumnOfTypes = inState.getTable(args[0]).getColumnOfTypes();
 

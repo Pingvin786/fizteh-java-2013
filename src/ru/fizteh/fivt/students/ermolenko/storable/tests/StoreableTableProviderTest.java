@@ -9,6 +9,7 @@ import ru.fizteh.fivt.students.ermolenko.storable.StoreableTableProvider;
 import ru.fizteh.fivt.students.ermolenko.storable.StoreableTableProviderFactory;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -95,5 +96,42 @@ public class StoreableTableProviderTest {
     public void getEmptyNameOfTable() {
 
         tableProvider.getTable("");
+    }
+
+    @Test
+    public void testThreadsCreate() throws Exception {
+
+        Thread firstThread = new Thread(new Runnable() {
+
+            @Override
+            public void run() {
+                try {
+                    tableProvider.createTable("myFirstFavouriteThreadTable", typeList);
+                    tableProvider.getTable("mySecondThreadTable");
+                } catch (IOException e) {
+                    throw new IllegalArgumentException("something going wrong");
+                }
+            }
+        });
+
+        Thread secondThread = new Thread(new Runnable() {
+
+            @Override
+            public void run() {
+                try {
+                    tableProvider.createTable("mySecondThreadTable", typeList);
+                    tableProvider.createTable("myFirstFavouriteThreadTable", typeList);
+                    tableProvider.getTable("myFirstFavouriteThreadTable");
+                } catch (IOException e) {
+                    throw new IllegalArgumentException("something going wrong");
+                }
+            }
+        });
+
+        firstThread.run();
+        secondThread.run();
+
+        firstThread.interrupt();
+        secondThread.interrupt();
     }
 }
