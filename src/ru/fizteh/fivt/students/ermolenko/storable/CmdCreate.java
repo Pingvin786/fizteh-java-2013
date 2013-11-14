@@ -20,7 +20,9 @@ public class CmdCreate implements Command<StoreableState> {
         if (args.length != 2) {
             throw new IOException("incorrect number of arguments");
         }
-
+        if (args[1].trim() == "") {
+            throw new IOException("wrong type");
+        }
         List<Class<?>> columnTypes = new ArrayList<Class<?>>();
 
         String[] types = args[1].trim().split("\\s+");
