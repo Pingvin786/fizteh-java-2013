@@ -16,26 +16,6 @@ public class StoreableUtils {
     public static Class<?> convertStringToClass(String inString) throws IOException {
 
         return StoreableEnum.getClassByName(inString);
-        /*
-        if (inString.equals("int")) {
-            return Integer.class;
-        } else if (inString.equals("long")) {
-            return Long.class;
-        } else if (inString.equals("byte")) {
-            return Byte.class;
-        } else if (inString.equals("float")) {
-            return Float.class;
-        } else if (inString.equals("double")) {
-            return Double.class;
-        } else if (inString.equals("boolean")) {
-            return Boolean.class;
-        } else if (inString.equals("String")) {
-            return String.class;
-        } else {
-            throw new IOException("type has wrong format");
-        }
-        */
-
     }
 
     private static String readType(DataInputStream inDataStream) throws IOException {
@@ -98,56 +78,9 @@ public class StoreableUtils {
         }
     }
 
-    /*
-    private static Object parseValue(String s, Class<?> classType) {
-
-        try {
-            String s1 = classType.getName();
-            if (s1.equals("java.lang.Integer")) {
-                return Integer.parseInt(s);
-            } else if (s1.equals("java.lang.Long")) {
-                return Long.parseLong(s);
-            } else if (s1.equals("java.lang.Byte")) {
-                return Byte.parseByte(s);
-            } else if (s1.equals("java.lang.Float")) {
-                return Float.parseFloat(s);
-            } else if (s1.equals("java.lang.Double")) {
-                return Double.parseDouble(s);
-            } else if (s1.equals("java.lang.Boolean")) {
-                return Boolean.parseBoolean(s);
-            } else if (s1.equals("java.lang.String")) {
-                return s;
-            } else {
-                throw new ColumnFormatException("wrong column format");
-            }
-        } catch (NumberFormatException e) {
-            throw new ColumnFormatException("column format error");
-        }
-    }
-    */
     private static String convertClassToString(Class<?> type) throws IOException {
 
         return StoreableEnum.getNameByClass(type);
-        /*
-        String s = type.getName();
-        if (s.equals("java.lang.Integer")) {
-            return "int";
-        } else if (s.equals("java.lang.Long")) {
-            return "long";
-        } else if (s.equals("java.lang.Byte")) {
-            return "byte";
-        } else if (s.equals("java.lang.Float")) {
-            return "float";
-        } else if (s.equals("java.lang.Double")) {
-            return "double";
-        } else if (s.equals("java.lang.Boolean")) {
-            return "boolean";
-        } else if (s.equals("java.lang.String")) {
-            return "String";
-        } else {
-            throw new IOException("write error");
-        }
-        */
     }
 
     public static void writeSignature(File directory, List<Class<?>> columnTypes) throws IOException {
