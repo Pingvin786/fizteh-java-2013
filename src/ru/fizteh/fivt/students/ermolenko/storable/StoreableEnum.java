@@ -90,7 +90,8 @@ public enum StoreableEnum {
         StoreableEnum types = dataBaseNamesToType.get(name);
         if (types == null) {
             System.out.println("wrong type");
-            throw new IllegalArgumentException();
+            return null;
+            //throw new IllegalArgumentException();
         }
         return types.theClass;
     }
