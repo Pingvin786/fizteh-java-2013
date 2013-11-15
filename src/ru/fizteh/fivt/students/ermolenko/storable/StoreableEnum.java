@@ -79,9 +79,6 @@ public enum StoreableEnum {
 
     public static Class<?> getClassByName(String name) {
 
-        if (dataBaseInCorrectNamesOfClasses.contains(name)) {
-            throw new IllegalArgumentException("wrong type (" + name + ")");
-        }
         name = name.toLowerCase();
         if (name.equals("integer")) {
             name = "int";
@@ -112,5 +109,13 @@ public enum StoreableEnum {
             throw new IllegalArgumentException("I don't know this type");
         }
         return types.parseValue(value);
+    }
+
+    public static boolean checkIncorrectTypes(String type) {
+
+        if (dataBaseInCorrectNamesOfClasses.contains(type)) {
+            return true;
+        }
+        return false;
     }
 }

@@ -27,6 +27,9 @@ public class CmdCreate implements Command<StoreableState> {
 
         String[] types = args[1].trim().split("\\s+");
         for (String type : types) {
+            if (StoreableEnum.checkIncorrectTypes(type)) {
+                throw new IOException("wrong type (" + args[1] + ")");
+            }
             columnTypes.add(StoreableUtils.convertStringToClass(type));
         }
         try {
