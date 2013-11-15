@@ -64,6 +64,7 @@ public enum StoreableEnum {
             dataBaseNamesAndTypes.put(type.nameOfClass, type);
             dataBaseClassesAndTypes.put(type.theClass, type);
         }
+        tmp.add("Integer");
         tmp.add("Long");
         tmp.add("Byte");
         tmp.add("string");
