@@ -162,8 +162,8 @@ public class StoreableTable implements Table {
     @Override
     public int commit() throws IOException {
 
+        tableLock.lock();
         try {
-            tableLock.lock();
             int size = changesBase.get().size();
             try {
                 if (size != 0) {

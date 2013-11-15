@@ -47,8 +47,8 @@ public class StoreableTableProvider implements TableProvider {
     @Override
     public StoreableTable getTable(String name) {
 
+        tableProviderLock.lock();
         try {
-            tableProviderLock.lock();
             if (name == null || !name.matches("[0-9a-zA-Zа-яА-Я]+")) {
                 throw new IllegalArgumentException("incorrect name of table");
             }
@@ -64,8 +64,8 @@ public class StoreableTableProvider implements TableProvider {
     @Override
     public StoreableTable createTable(String name, List<Class<?>> columnTypes) throws IOException {
 
+        tableProviderLock.lock();
         try {
-            tableProviderLock.lock();
             if (name == null) {
                 throw new IllegalArgumentException("null name to create");
             }
@@ -110,8 +110,8 @@ public class StoreableTableProvider implements TableProvider {
     @Override
     public void removeTable(String name) throws IOException {
 
+        tableProviderLock.lock();
         try {
-            tableProviderLock.lock();
             if (name == null) {
                 throw new IllegalArgumentException("null name to create");
             }
