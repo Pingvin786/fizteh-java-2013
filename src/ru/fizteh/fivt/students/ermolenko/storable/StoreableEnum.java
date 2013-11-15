@@ -80,6 +80,9 @@ public enum StoreableEnum {
 
     public static Class<?> getClassByName(String name) {
 
+        if (name.equals("string")) {
+            throw new IllegalArgumentException("wrong type (" + name + ")");
+        }
         name = name.toLowerCase();
         if (name.equals("integer")) {
             name = "int";
