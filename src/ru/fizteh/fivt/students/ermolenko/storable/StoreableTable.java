@@ -14,7 +14,7 @@ public class StoreableTable implements Table {
 
     private List<Class<?>> columnOfTypes;
     private StoreableTableProvider tableProvider;
-    private ThreadLocal<HashMap<String, Storeable>> dataBase;
+    private HashMap<String, Storeable> dataBase;
     private ThreadLocal<HashMap<String, Storeable>> changesBase;
     private File dataFile;
     private ThreadLocal<Integer> sizeTable;
@@ -25,11 +25,8 @@ public class StoreableTable implements Table {
         columnOfTypes = new ArrayList<Class<?>>();
         tableProvider = inTableProvider;
 
-        dataBase = new ThreadLocal<HashMap<String, Storeable>>() {
-            public HashMap<String, Storeable> initialValue() {
-                return new HashMap<String, Storeable>();
-            }
-        };
+        dataBase = new HashMap<String, Storeable>();
+
         changesBase = new ThreadLocal<HashMap<String, Storeable>>() {
             public HashMap<String, Storeable> initialValue() {
                 return new HashMap<String, Storeable>();
@@ -71,8 +68,8 @@ public class StoreableTable implements Table {
                 returnValue = changesBase.get().get(newKey);
             }
         } else {
-            if (dataBase.get().containsKey(newKey)) {
-                returnValue = dataBase.get().get(newKey);
+            if (dataBase.containsKey(newKey)) {
+                returnValue = dataBase.get(newKey);
             } else {
                 returnValue = null;
             }
@@ -113,7 +110,7 @@ public class StoreableTable implements Table {
             throw new ColumnFormatException("less number of columns");
         }
 
-        if ((!changesBase.get().containsKey(key) && !dataBase.get().containsKey(key)) ||
+        if ((!changesBase.get().containsKey(key) && !dataBase.containsKey(key)) ||
                 (changesBase.get().containsKey(key) && changesBase.get().get(key) == null)) {
             //исправлено
             //эквивалент инкремента
@@ -121,7 +118,7 @@ public class StoreableTable implements Table {
         }
         Storeable result = get(key);
         changesBase.get().put(key, value);
-        if (value.equals(dataBase.get().get(key))) {
+        if (value.equals(dataBase.get(key))) {
             changesBase.get().remove(key);
         }
 
@@ -141,13 +138,13 @@ public class StoreableTable implements Table {
         }
 
 
-        if (changesBase.get().get(newKey) != null || (!changesBase.get().containsKey(newKey) && dataBase.get().get(newKey) != null)) {
+        if (changesBase.get().get(newKey) != null || (!changesBase.get().containsKey(newKey) && dataBase.get(newKey) != null)) {
             //изменено
             sizeTable.set(sizeTable.get() - 1);
         }
         Storeable result = get(newKey);
         changesBase.get().put(newKey, null);
-        if (dataBase.get().get(newKey) == null) {
+        if (dataBase.get(newKey) == null) {
             changesBase.get().remove(newKey);
         }
         return result;
@@ -171,18 +168,18 @@ public class StoreableTable implements Table {
                     for (Map.Entry<String, Storeable> pair : set) {
                         pair.getKey();
                         if (pair.getValue() == null) {
-                            dataBase.get().remove(pair.getKey());
+                            dataBase.remove(pair.getKey());
                         } else {
-                            dataBase.get().put(pair.getKey(), pair.getValue());
+                            dataBase.put(pair.getKey(), pair.getValue());
                         }
                     }
-                    StoreableUtils.write(dataFile, this, dataBase.get(), tableProvider);
+                    StoreableUtils.write(dataFile, this, dataBase, tableProvider);
                 }
             } catch (IOException e) {
                 System.err.println(e);
             }
             changesBase.get().clear();
-            sizeTable.set(dataBase.get().size());
+            sizeTable.set(dataBase.size());
             return size;
         } finally {
             tableLock.unlock();
@@ -194,7 +191,7 @@ public class StoreableTable implements Table {
 
         int size = changesBase.get().size();
         changesBase.get().clear();
-        sizeTable.set(dataBase.get().size());
+        sizeTable.set(dataBase.size());
         return size;
     }
 
@@ -222,7 +219,7 @@ public class StoreableTable implements Table {
 
     public HashMap<String, Storeable> getDataBase() {
 
-        return dataBase.get();
+        return dataBase;
     }
 
     public File getDataFile() {
@@ -240,8 +237,8 @@ public class StoreableTable implements Table {
 
         columnOfTypes = inColumnOfTypes;
         tableProvider = inProvider;
-        dataBase.set(inDataBase);
+        dataBase = inDataBase;
         dataFile = inFile;
-        sizeTable.set(dataBase.get().size());
+        sizeTable.set(dataBase.size());
     }
 }
