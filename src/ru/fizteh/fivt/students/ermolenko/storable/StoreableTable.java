@@ -17,7 +17,7 @@ public class StoreableTable implements Table {
     private ThreadLocal<HashMap<String, Storeable>> dataBase;
     private ThreadLocal<HashMap<String, Storeable>> changesBase;
     private File dataFile;
-    private int sizeTable;
+    private ThreadLocal<Integer> sizeTable;
     protected final Lock tableLock = new ReentrantLock(true);
 
     public StoreableTable(File inFile, StoreableTableProvider inTableProvider) throws IOException {
@@ -35,6 +35,12 @@ public class StoreableTable implements Table {
                 return new HashMap<String, Storeable>();
             }
         };
+        sizeTable = new ThreadLocal<Integer>() {
+            public Integer initialValue() {
+                return 0;
+            }
+        };
+
         dataFile = inFile;
         File signatureFile = new File(inFile, "signature.tsv");
         StoreableUtils.readSignature(signatureFile, columnOfTypes);
@@ -111,7 +117,7 @@ public class StoreableTable implements Table {
                 (changesBase.get().containsKey(key) && changesBase.get().get(key) == null)) {
             //исправлено
             //эквивалент инкремента
-            ++sizeTable;
+            sizeTable.set(sizeTable.get() + 1);
         }
         Storeable result = get(key);
         changesBase.get().put(key, value);
@@ -137,7 +143,7 @@ public class StoreableTable implements Table {
 
         if (changesBase.get().get(newKey) != null || (!changesBase.get().containsKey(newKey) && dataBase.get().get(newKey) != null)) {
             //изменено
-            --sizeTable;
+            sizeTable.set(sizeTable.get() - 1);
         }
         Storeable result = get(newKey);
         changesBase.get().put(newKey, null);
@@ -150,7 +156,7 @@ public class StoreableTable implements Table {
     @Override
     public int size() {
 
-        return sizeTable;
+        return sizeTable.get();
     }
 
     @Override
@@ -176,7 +182,7 @@ public class StoreableTable implements Table {
                 System.err.println(e);
             }
             changesBase.get().clear();
-            sizeTable = dataBase.get().size();
+            sizeTable.set(dataBase.get().size());
             return size;
         } finally {
             tableLock.unlock();
@@ -188,7 +194,7 @@ public class StoreableTable implements Table {
 
         int size = changesBase.get().size();
         changesBase.get().clear();
-        sizeTable = dataBase.get().size();
+        sizeTable.set(dataBase.get().size());
         return size;
     }
 
@@ -236,6 +242,6 @@ public class StoreableTable implements Table {
         tableProvider = inProvider;
         dataBase.set(inDataBase);
         dataFile = inFile;
-        sizeTable = dataBase.get().size();
+        sizeTable.set(dataBase.get().size());
     }
 }
