@@ -115,7 +115,11 @@ public class StoreableTable implements Table {
             sizeTable.set(sizeTable.get() + 1);
         }
         Storeable result = get(key);
-        changesBase.get().put(key, value);
+        if (changesBase.get().containsKey(key) && changesBase.get().get(key) == null) {
+            changesBase.get().remove(key);
+        } else {
+            changesBase.get().put(key, value);
+        }
         /*
         if (value.equals(dataBase.get(key))) {
             changesBase.get().remove(key);
@@ -138,7 +142,6 @@ public class StoreableTable implements Table {
 
 
         if (changesBase.get().get(newKey) != null || (!changesBase.get().containsKey(newKey) && dataBase.get(newKey) != null)) {
-            //изменено
             sizeTable.set(sizeTable.get() - 1);
         }
         Storeable result = get(newKey);
