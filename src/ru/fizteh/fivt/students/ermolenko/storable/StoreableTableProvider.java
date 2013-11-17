@@ -47,14 +47,15 @@ public class StoreableTableProvider implements TableProvider {
     @Override
     public StoreableTable getTable(String name) {
 
+        if (name == null || !name.matches("[0-9a-zA-Zа-яА-Я]+")) {
+            throw new IllegalArgumentException("incorrect name of table");
+        }
+        if (name.trim().equals("")) {
+            throw new IllegalArgumentException("empty table");
+        }
+
         tableProviderLock.lock();
         try {
-            if (name == null || !name.matches("[0-9a-zA-Zа-яА-Я]+")) {
-                throw new IllegalArgumentException("incorrect name of table");
-            }
-            if (name.trim().equals("")) {
-                throw new IllegalArgumentException("empty table");
-            }
             return mapOfTables.get(name);
         } finally {
             tableProviderLock.unlock();
@@ -64,24 +65,25 @@ public class StoreableTableProvider implements TableProvider {
     @Override
     public StoreableTable createTable(String name, List<Class<?>> columnTypes) throws IOException {
 
+
+        if (name == null) {
+            throw new IllegalArgumentException("null name to create");
+        }
+        if (name.trim().isEmpty()) {
+            throw new IllegalArgumentException("empty name to get");
+        }
+        if (!name.matches("[a-zA-Zа-яА-Я0-9]+")) {
+            throw new IllegalArgumentException("incorrect name to create");
+        }
+        if (columnTypes == null) {
+            throw new IllegalArgumentException("null columnTypes to create");
+        }
+        if (columnTypes.isEmpty()) {
+            throw new IllegalArgumentException("empty columnTypes to create");
+        }
+
         tableProviderLock.lock();
         try {
-            if (name == null) {
-                throw new IllegalArgumentException("null name to create");
-            }
-            if (name.trim().isEmpty()) {
-                throw new IllegalArgumentException("empty name to get");
-            }
-            if (!name.matches("[a-zA-Zа-яА-Я0-9]+")) {
-                throw new IllegalArgumentException("incorrect name to create");
-            }
-            if (columnTypes == null) {
-                throw new IllegalArgumentException("null columnTypes to create");
-            }
-            if (columnTypes.isEmpty()) {
-                throw new IllegalArgumentException("empty columnTypes to create");
-            }
-
             File tableFile = new File(currentDir, name);
 
             if (!tableFile.mkdir()) {
@@ -110,22 +112,22 @@ public class StoreableTableProvider implements TableProvider {
     @Override
     public void removeTable(String name) throws IOException {
 
+
+        if (name == null) {
+            throw new IllegalArgumentException("null name to create");
+        }
+        if (name.trim().isEmpty()) {
+            throw new IllegalArgumentException("empty name to get");
+        }
+        if (!name.matches("[a-zA-Zа-яА-Я0-9]+")) {
+            throw new IllegalArgumentException("incorrect name to create");
+        }
+        if (mapOfTables.get(name) == null) {
+            throw new IllegalStateException("not existing table");
+        }
+
         tableProviderLock.lock();
         try {
-            if (name == null) {
-                throw new IllegalArgumentException("null name to create");
-            }
-            if (name.trim().isEmpty()) {
-                throw new IllegalArgumentException("empty name to get");
-            }
-            if (!name.matches("[a-zA-Zа-яА-Я0-9]+")) {
-                throw new IllegalArgumentException("incorrect name to create");
-            }
-
-            if (mapOfTables.get(name) == null) {
-                throw new IllegalStateException("not existing table");
-            }
-
             mapOfTables.remove(name);
         } finally {
             tableProviderLock.unlock();
@@ -148,7 +150,7 @@ public class StoreableTableProvider implements TableProvider {
             return null;
         }
 
-        XMLStreamReader reader = null;
+        XMLStreamReader reader;
         try {
             reader = XMLInputFactory.newInstance().createXMLStreamReader(new StringReader(value));
         } catch (XMLStreamException e) {

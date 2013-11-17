@@ -117,7 +117,7 @@ public class StoreableTable implements Table {
                 (changesBase.get().containsKey(key) && changesBase.get().get(key) == null)) {
             //исправлено
             //эквивалент инкремента
-            sizeTable.set(Integer.valueOf(sizeTable.get().intValue() + 1));
+            sizeTable.set(sizeTable.get() + 1);
         }
         Storeable result = get(key);
         changesBase.get().put(key, value);
@@ -143,7 +143,7 @@ public class StoreableTable implements Table {
 
         if (changesBase.get().get(newKey) != null || (!changesBase.get().containsKey(newKey) && dataBase.get().get(newKey) != null)) {
             //изменено
-            sizeTable.set(Integer.valueOf(sizeTable.get().intValue() - 1));
+            sizeTable.set(sizeTable.get() - 1);
         }
         Storeable result = get(newKey);
         changesBase.get().put(newKey, null);
