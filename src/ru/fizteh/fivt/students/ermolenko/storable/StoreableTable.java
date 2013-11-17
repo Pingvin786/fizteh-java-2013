@@ -170,7 +170,13 @@ public class StoreableTable implements Table {
                         if (pair.getValue() == null) {
                             dataBase.remove(pair.getKey());
                         } else {
-                            if (dataBase.get(pair.getKey()) != pair.getValue()) {
+                            if (dataBase.get(pair.getKey()) != null) {
+                                if (!dataBase.get(pair.getKey()).equals(pair.getValue())) {
+                                    dataBase.put(pair.getKey(), pair.getValue());
+                                } else {
+                                    --size;
+                                }
+                            } else {
                                 dataBase.put(pair.getKey(), pair.getValue());
                             }
                         }
