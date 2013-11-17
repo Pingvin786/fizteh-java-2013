@@ -112,16 +112,15 @@ public class StoreableTable implements Table {
 
         if ((!changesBase.get().containsKey(key) && !dataBase.containsKey(key)) ||
                 (changesBase.get().containsKey(key) && changesBase.get().get(key) == null)) {
-            //исправлено
-            //эквивалент инкремента
             sizeTable.set(sizeTable.get() + 1);
         }
         Storeable result = get(key);
         changesBase.get().put(key, value);
+        /*
         if (value.equals(dataBase.get(key))) {
             changesBase.get().remove(key);
         }
-
+        */
         return result;
     }
 
