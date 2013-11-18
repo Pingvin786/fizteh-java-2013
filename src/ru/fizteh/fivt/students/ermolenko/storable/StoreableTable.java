@@ -140,7 +140,6 @@ public class StoreableTable implements Table {
             throw new IllegalArgumentException("Incorrect key to remove");
         }
 
-
         if (changesBase.get().get(newKey) != null || (!changesBase.get().containsKey(newKey) && dataBase.get(newKey) != null)) {
             sizeTable.set(sizeTable.get() - 1);
         }
@@ -157,7 +156,16 @@ public class StoreableTable implements Table {
 
         tableLock.lock();
         try {
-            return (sizeTable.get() + dataBase.size());
+            int size = sizeTable.get() + dataBase.size();
+            Set<Map.Entry<String, Storeable>> set = changesBase.get().entrySet();
+            for (Map.Entry<String, Storeable> pair : set) {
+                if (dataBase.containsKey(pair.getKey())) {
+                    if (dataBase.get(pair.getKey()) == pair.getValue()) {
+                        --size;
+                    }
+                }
+            }
+            return size;
         } finally {
             tableLock.unlock();
         }
