@@ -160,7 +160,7 @@ public class StoreableTable implements Table {
             Set<Map.Entry<String, Storeable>> set = changesBase.get().entrySet();
             for (Map.Entry<String, Storeable> pair : set) {
                 if (dataBase.containsKey(pair.getKey())) {
-                    if (dataBase.get(pair.getKey()) == pair.getValue()) {
+                    if (dataBase.get(pair.getKey()).equals(pair.getValue())) {
                         --size;
                     }
                 }
@@ -219,7 +219,7 @@ public class StoreableTable implements Table {
             Set<Map.Entry<String, Storeable>> set = changesBase.get().entrySet();
             for (Map.Entry<String, Storeable> pair : set) {
                 if (dataBase.containsKey(pair.getKey())) {
-                    if (dataBase.get(pair.getKey()) == pair.getValue()) {
+                    if (dataBase.get(pair.getKey()).equals(pair.getValue())) {
                         --size;
                     }
                 }
