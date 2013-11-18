@@ -155,7 +155,12 @@ public class StoreableTable implements Table {
     @Override
     public int size() {
 
-        return sizeTable.get();
+        tableLock.lock();
+        try {
+            return (sizeTable.get() + dataBase.size());
+        } finally {
+            tableLock.unlock();
+        }
     }
 
     @Override
@@ -189,7 +194,8 @@ public class StoreableTable implements Table {
                 System.err.println(e);
             }
             changesBase.get().clear();
-            sizeTable.set(dataBase.size());
+            sizeTable.set(0);
+            //sizeTable.set(dataBase.size());
             return size;
         } finally {
             tableLock.unlock();
@@ -200,6 +206,14 @@ public class StoreableTable implements Table {
     public int rollback() {
 
         int size = changesBase.get().size();
+        Set<Map.Entry<String, Storeable>> set = changesBase.get().entrySet();
+        for (Map.Entry<String, Storeable> pair : set) {
+            if (dataBase.containsKey(pair.getKey())) {
+                if (dataBase.get(pair.getKey()) == pair.getValue()) {
+                    --size;
+                }
+            }
+        }
         changesBase.get().clear();
         sizeTable.set(dataBase.size());
         return size;
@@ -249,6 +263,6 @@ public class StoreableTable implements Table {
         tableProvider = inProvider;
         dataBase = inDataBase;
         dataFile = inFile;
-        sizeTable.set(dataBase.size());
+        sizeTable.set(0);
     }
 }
