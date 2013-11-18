@@ -233,7 +233,7 @@ public class StoreableTableTest {
         table.commit();
         table.remove("testPutRemoveRollbackKey");
         table.put("testRemovePutRollbackKey", testStorable);
-        Assert.assertEquals(table.rollback(), 0);
+        Assert.assertEquals(0, table.rollback());
     }
 
     @Test

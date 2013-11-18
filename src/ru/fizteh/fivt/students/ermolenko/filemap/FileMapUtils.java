@@ -57,7 +57,8 @@ public class FileMapUtils {
         }
     }
 
-    public static void readAndCheckDataBase(FileMapState state, int directNumber, int fileNumber) throws IOException {
+    public static void readAndCheckDataBase(FileMapState state, int directNumber, int fileNumber)
+            throws IOException {
 
         if (state.getDataFile().length() == 0) {
             return;
@@ -79,8 +80,6 @@ public class FileMapUtils {
             int firstOffset = offset1;
             position += 5;
             while (position != firstOffset) {
-                if (firstOffset > fileLength) {
-                }
                 String key2 = readKey(dataStream);
                 checkKeyPlacement(key2, directNumber, fileNumber);
 
@@ -120,8 +119,6 @@ public class FileMapUtils {
             int firstOffset = offset1;
             position += 5;
             while (position != firstOffset) {
-                if (firstOffset > fileLength) {
-                }
                 String key2 = readKey(dataStream);
 
                 position += key2.getBytes(StandardCharsets.UTF_8).length;
@@ -143,7 +140,7 @@ public class FileMapUtils {
 
         try {
             stream.close();
-        } catch (IOException e) {
+        } catch (IOException ignored) {
 
         }
     }

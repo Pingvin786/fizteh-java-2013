@@ -91,8 +91,8 @@ public class MultiFileHashMapTable implements Table {
             throw new IllegalArgumentException("Incorrect key or value to put");
         }
 
-        if ((!changesBase.containsKey(newKey) && !dataBase.containsKey(newKey)) ||
-                (changesBase.containsKey(newKey) && changesBase.get(newKey) == null)) {
+        if ((!changesBase.containsKey(newKey) && !dataBase.containsKey(newKey))
+                || (changesBase.containsKey(newKey) && changesBase.get(newKey) == null)) {
             ++sizeTable;
         }
         String result = get(newKey);
