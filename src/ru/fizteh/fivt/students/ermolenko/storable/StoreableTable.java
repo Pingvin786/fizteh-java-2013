@@ -225,7 +225,7 @@ public class StoreableTable implements Table {
                 }
             }
             changesBase.get().clear();
-            sizeTable.set(dataBase.size());
+            sizeTable.set(0);
             return size;
         } finally {
             tableLock.unlock();
