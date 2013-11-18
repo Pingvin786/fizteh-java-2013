@@ -213,18 +213,23 @@ public class StoreableTable implements Table {
     @Override
     public int rollback() {
 
-        int size = changesBase.get().size();
-        Set<Map.Entry<String, Storeable>> set = changesBase.get().entrySet();
-        for (Map.Entry<String, Storeable> pair : set) {
-            if (dataBase.containsKey(pair.getKey())) {
-                if (dataBase.get(pair.getKey()) == pair.getValue()) {
-                    --size;
+        tableLock.lock();
+        try {
+            int size = changesBase.get().size();
+            Set<Map.Entry<String, Storeable>> set = changesBase.get().entrySet();
+            for (Map.Entry<String, Storeable> pair : set) {
+                if (dataBase.containsKey(pair.getKey())) {
+                    if (dataBase.get(pair.getKey()) == pair.getValue()) {
+                        --size;
+                    }
                 }
             }
+            changesBase.get().clear();
+            sizeTable.set(dataBase.size());
+            return size;
+        } finally {
+            tableLock.unlock();
         }
-        changesBase.get().clear();
-        sizeTable.set(dataBase.size());
-        return size;
     }
 
     @Override
