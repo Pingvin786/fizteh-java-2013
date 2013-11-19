@@ -154,7 +154,7 @@ public class StoreableTable implements Table {
 
     @Override
     public int size() {
-
+         /*
         tableLock.lock();
 
         int size = dataBase.size();
@@ -179,8 +179,8 @@ public class StoreableTable implements Table {
         } finally {
             tableLock.unlock();
         }
+        */
 
-        /*
         tableLock.lock();
         try {
             int size = changesBase.get().size() + dataBase.size();
@@ -195,7 +195,7 @@ public class StoreableTable implements Table {
             return size;
         } finally {
             tableLock.unlock();
-            */
+        }
     }
 
 
