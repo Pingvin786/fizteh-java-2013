@@ -156,8 +156,34 @@ public class StoreableTable implements Table {
     public int size() {
 
         tableLock.lock();
+
+        int size = dataBase.size();
         try {
-            int size = sizeTable.get() + dataBase.size();
+            Set<Map.Entry<String, Storeable>> set = changesBase.get().entrySet();
+            for (Map.Entry<String, Storeable> pair : set) {
+                if (pair.getValue() == null) {
+                    --size;
+                } else {
+                    if (dataBase.get(pair.getKey()) != null) {
+                        String tmp1 = tableProvider.serialize(this, dataBase.get(pair.getKey()));
+                        String tmp2 = tableProvider.serialize(this, pair.getValue());
+                        if (!tmp1.equals(tmp2)) {
+                            ++size;
+                        }
+                    } else {
+                        ++size;
+                    }
+                }
+            }
+            return size;
+        } finally {
+            tableLock.unlock();
+        }
+
+        /*
+        tableLock.lock();
+        try {
+            int size = changesBase.get().size() + dataBase.size();
             Set<Map.Entry<String, Storeable>> set = changesBase.get().entrySet();
             for (Map.Entry<String, Storeable> pair : set) {
                 if (dataBase.containsKey(pair.getKey())) {
@@ -169,8 +195,9 @@ public class StoreableTable implements Table {
             return size;
         } finally {
             tableLock.unlock();
-        }
+            */
     }
+
 
     @Override
     public int commit() throws IOException {
@@ -182,7 +209,6 @@ public class StoreableTable implements Table {
                 if (size != 0) {
                     Set<Map.Entry<String, Storeable>> set = changesBase.get().entrySet();
                     for (Map.Entry<String, Storeable> pair : set) {
-                        pair.getKey();
                         if (pair.getValue() == null) {
                             dataBase.remove(pair.getKey());
                         } else {
