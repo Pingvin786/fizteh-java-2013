@@ -300,10 +300,13 @@ public class StoreableTableTest {
             public void run() {
                 table.put("tryingToPutFirstKey", testStorable);
                 table.put("huishe", testStorable);
+
                 try {
                     Thread.sleep(300);
-                } catch (InterruptedException ignored) {
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
                 }
+
                 try {
                     ref.set(table.commit());
                     ref3.set(table.size());
@@ -318,10 +321,13 @@ public class StoreableTableTest {
 
             @Override
             public void run() {
+
                 try {
                     Thread.sleep(100);
-                } catch (InterruptedException ignored) {
+                } catch (InterruptedException e) {
+                    e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
                 }
+
                 table.put("tryingToPutFirstKey", testStorable);
                 ref3.set(table.size());
 

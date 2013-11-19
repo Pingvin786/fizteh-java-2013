@@ -29,10 +29,10 @@ public class MyStoreableTest {
         database = new File("javatest").getCanonicalFile();
         database.mkdir();
         tableProvider = tableProviderFactory.create("javatest");
-        testString = "<row><col>5</col><col>0</col><col>65777</col><col>" +
-                "5.5</col><col>767.576</col><col>frgedr</col><col>true</col></row>";
-        testString1 = "<row><col>5</col><col>0</col><col>65777</col><col>" +
-                "5.5</col><col>767.576</col><col>frgedr</col><col>true</col></row>";
+        testString = "<row><col>5</col><col>0</col><col>65777</col><col>"
+                + "5.5</col><col>767.576</col><col>frgedr</col><col>true</col></row>";
+        testString1 = "<row><col>5</col><col>0</col><col>65777</col><col>"
+                + "5.5</col><col>767.576</col><col>frgedr</col><col>true</col></row>";
     }
 
     @Before

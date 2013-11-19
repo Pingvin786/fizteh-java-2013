@@ -110,8 +110,8 @@ public class StoreableTable implements Table {
             throw new ColumnFormatException("less number of columns");
         }
 
-        if ((!changesBase.get().containsKey(key) && !dataBase.containsKey(key)) ||
-                (changesBase.get().containsKey(key) && changesBase.get().get(key) == null)) {
+        if ((!changesBase.get().containsKey(key) && !dataBase.containsKey(key))
+                || (changesBase.get().containsKey(key) && changesBase.get().get(key) == null)) {
             sizeTable.set(sizeTable.get() + 1);
         }
         Storeable result = get(key);
@@ -140,7 +140,8 @@ public class StoreableTable implements Table {
             throw new IllegalArgumentException("Incorrect key to remove");
         }
 
-        if (changesBase.get().get(newKey) != null || (!changesBase.get().containsKey(newKey) && dataBase.get(newKey) != null)) {
+        if (changesBase.get().get(newKey) != null
+                || (!changesBase.get().containsKey(newKey) && dataBase.get(newKey) != null)) {
             sizeTable.set(sizeTable.get() - 1);
         }
         Storeable result = get(newKey);

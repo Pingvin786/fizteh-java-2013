@@ -33,8 +33,9 @@ public abstract class Executor<State> {
 
         String tmp;
         int space = cmd.indexOf(" ");
-        if (-1 == space)
+        if (-1 == space) {
             space = cmd.length();
+        }
         tmp = cmd.substring(0, space);
         return tmp;
     }
