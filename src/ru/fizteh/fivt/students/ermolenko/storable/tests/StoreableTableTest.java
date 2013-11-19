@@ -300,7 +300,7 @@ public class StoreableTableTest {
                 table.put("tryingToPutFirstKey", testStorable);
                 table.put("huishe", testStorable);
                 try {
-                    Thread.sleep(100);
+                    Thread.sleep(300);
                 } catch (InterruptedException ignored) {
                 }
                 try {
@@ -328,11 +328,11 @@ public class StoreableTableTest {
             }
         });
 
-        firstThread.run();
-        secondThread.run();
+        firstThread.start();
+        secondThread.start();
 
-        firstThread.interrupt();
-        secondThread.interrupt();
+        firstThread.join();
+        secondThread.join();
 
         Assert.assertEquals(1, ref.get().intValue());
 
