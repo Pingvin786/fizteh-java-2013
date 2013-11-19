@@ -12,6 +12,7 @@ import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicReference;
 
 public class StoreableTableTest {
 
@@ -289,15 +290,24 @@ public class StoreableTableTest {
 
     @Test
     public void testThreadsPutPutCommit() throws Exception {
+        final AtomicReference<Integer> ref = new AtomicReference<Integer>(0);
+        final AtomicReference<StoreableTable> ref2 = new AtomicReference<StoreableTable>(null);
+        final AtomicReference<Integer> ref3 = new AtomicReference<Integer>(0);
 
         Thread firstThread = new Thread(new Runnable() {
 
             @Override
             public void run() {
                 table.put("tryingToPutFirstKey", testStorable);
-
+                table.put("huishe", testStorable);
                 try {
-                    table.commit();
+                    Thread.sleep(300);
+                } catch (InterruptedException ignored) {
+                }
+                try {
+                    ref.set(table.commit());
+                    ref3.set(table.size());
+
                 } catch (IOException e) {
                     throw new IllegalArgumentException("something going wrong");
                 }
@@ -308,7 +318,13 @@ public class StoreableTableTest {
 
             @Override
             public void run() {
-                table.put("tryingToPutSecondKey", testStorable);
+                try {
+                    Thread.sleep(100);
+                } catch (InterruptedException ignored) {
+                }
+                table.put("tryingToPutFirstKey", testStorable);
+                ref3.set(table.size());
+
                 try {
                     table.commit();
                 } catch (IOException e) {
@@ -323,7 +339,9 @@ public class StoreableTableTest {
         firstThread.interrupt();
         secondThread.interrupt();
 
-        Assert.assertEquals(testStorable, table.get("tryingToPutFirstKey"));
-        Assert.assertEquals(testStorable, table.get("tryingToPutSecondKey"));
+        Assert.assertEquals(1, ref.get().intValue());
+
+//        Assert.assertEquals(testStorable, table.get("tryingToPutFirstKey"));
+//        Assert.assertEquals(testStorable, table.get("tryingToPutSecondKey"));
     }
 }

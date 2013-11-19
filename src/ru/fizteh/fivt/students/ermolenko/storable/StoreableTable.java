@@ -165,7 +165,6 @@ public class StoreableTable implements Table {
                     }
                 }
             }
-            System.out.println(size);
             return size;
         } finally {
             tableLock.unlock();
@@ -187,7 +186,9 @@ public class StoreableTable implements Table {
                             dataBase.remove(pair.getKey());
                         } else {
                             if (dataBase.get(pair.getKey()) != null) {
-                                if (!tableProvider.serialize(this, dataBase.get(pair.getKey())).equals(tableProvider.serialize(this, pair.getValue()))) {
+                                String tmp1 = tableProvider.serialize(this, dataBase.get(pair.getKey()));
+                                String tmp2 = tableProvider.serialize(this, pair.getValue());
+                                if (!tmp1.equals(tmp2)) {
                                     dataBase.put(pair.getKey(), pair.getValue());
                                 } else {
                                     --size;
@@ -204,7 +205,6 @@ public class StoreableTable implements Table {
             }
             changesBase.get().clear();
             sizeTable.set(0);
-            //sizeTable.set(dataBase.size());
             return size;
         } finally {
             tableLock.unlock();
