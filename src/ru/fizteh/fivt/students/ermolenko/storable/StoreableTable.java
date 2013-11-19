@@ -110,8 +110,8 @@ public class StoreableTable implements Table {
             throw new ColumnFormatException("less number of columns");
         }
 
-        if ((!changesBase.get().containsKey(key) && !dataBase.containsKey(key)) ||
-                (changesBase.get().containsKey(key) && changesBase.get().get(key) == null)) {
+        if ((!changesBase.get().containsKey(key) && !dataBase.containsKey(key))
+                || (changesBase.get().containsKey(key) && changesBase.get().get(key) == null)) {
             sizeTable.set(sizeTable.get() + 1);
         }
         Storeable result = get(key);
@@ -140,7 +140,8 @@ public class StoreableTable implements Table {
             throw new IllegalArgumentException("Incorrect key to remove");
         }
 
-        if (changesBase.get().get(newKey) != null || (!changesBase.get().containsKey(newKey) && dataBase.get(newKey) != null)) {
+        if (changesBase.get().get(newKey) != null
+                || (!changesBase.get().containsKey(newKey) && dataBase.get(newKey) != null)) {
             sizeTable.set(sizeTable.get() - 1);
         }
         Storeable result = get(newKey);
@@ -153,10 +154,36 @@ public class StoreableTable implements Table {
 
     @Override
     public int size() {
+         /*
+        tableLock.lock();
+
+        int size = dataBase.size();
+        try {
+            Set<Map.Entry<String, Storeable>> set = changesBase.get().entrySet();
+            for (Map.Entry<String, Storeable> pair : set) {
+                if (pair.getValue() == null) {
+                    --size;
+                } else {
+                    if (dataBase.get(pair.getKey()) != null) {
+                        String tmp1 = tableProvider.serialize(this, dataBase.get(pair.getKey()));
+                        String tmp2 = tableProvider.serialize(this, pair.getValue());
+                        if (!tmp1.equals(tmp2)) {
+                            ++size;
+                        }
+                    } else {
+                        ++size;
+                    }
+                }
+            }
+            return size;
+        } finally {
+            tableLock.unlock();
+        }
+        */
 
         tableLock.lock();
         try {
-            int size = sizeTable.get() + dataBase.size();
+            int size = changesBase.get().size() + dataBase.size();
             Set<Map.Entry<String, Storeable>> set = changesBase.get().entrySet();
             for (Map.Entry<String, Storeable> pair : set) {
                 if (dataBase.containsKey(pair.getKey())) {
@@ -165,12 +192,12 @@ public class StoreableTable implements Table {
                     }
                 }
             }
-            System.out.println(size);
             return size;
         } finally {
             tableLock.unlock();
         }
     }
+
 
     @Override
     public int commit() throws IOException {
@@ -182,12 +209,13 @@ public class StoreableTable implements Table {
                 if (size != 0) {
                     Set<Map.Entry<String, Storeable>> set = changesBase.get().entrySet();
                     for (Map.Entry<String, Storeable> pair : set) {
-                        pair.getKey();
                         if (pair.getValue() == null) {
                             dataBase.remove(pair.getKey());
                         } else {
                             if (dataBase.get(pair.getKey()) != null) {
-                                if (!tableProvider.serialize(this, dataBase.get(pair.getKey())).equals(tableProvider.serialize(this, pair.getValue()))) {
+                                String tmp1 = tableProvider.serialize(this, dataBase.get(pair.getKey()));
+                                String tmp2 = tableProvider.serialize(this, pair.getValue());
+                                if (!tmp1.equals(tmp2)) {
                                     dataBase.put(pair.getKey(), pair.getValue());
                                 } else {
                                     --size;
@@ -204,7 +232,6 @@ public class StoreableTable implements Table {
             }
             changesBase.get().clear();
             sizeTable.set(0);
-            //sizeTable.set(dataBase.size());
             return size;
         } finally {
             tableLock.unlock();

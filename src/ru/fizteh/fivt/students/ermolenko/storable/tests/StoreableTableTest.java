@@ -8,10 +8,10 @@ import ru.fizteh.fivt.students.ermolenko.storable.StoreableTableProvider;
 import ru.fizteh.fivt.students.ermolenko.storable.StoreableTableProviderFactory;
 
 import java.io.File;
-import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicReference;
 
 public class StoreableTableTest {
 
@@ -206,7 +206,7 @@ public class StoreableTableTest {
         table.put("testSizeKey1", testStorable);
         table.put("testSizeKey2", testStorable);
         table.put("testSizeKey3", testStorable);
-        Assert.assertEquals(table.size(), 3);
+        Assert.assertEquals(3, table.size());
     }
 
     @Test
@@ -289,18 +289,41 @@ public class StoreableTableTest {
 
     @Test
     public void testThreadsPutPutCommit() throws Exception {
+        final AtomicReference<Integer> ref = new AtomicReference<Integer>(0);
+        final AtomicReference<StoreableTable> ref2 = new AtomicReference<StoreableTable>(null);
+        final AtomicReference<Integer> ref3 = new AtomicReference<Integer>(0);
 
         Thread firstThread = new Thread(new Runnable() {
 
             @Override
             public void run() {
+//                try {
+//                    Thread.sleep(100);
+//                } catch (InterruptedException e) {
+//                    e.printStackTrace();
+//                }
                 table.put("tryingToPutFirstKey", testStorable);
-
                 try {
+//                    Thread.sleep(100);
                     table.commit();
-                } catch (IOException e) {
-                    throw new IllegalArgumentException("something going wrong");
+                } catch (Exception e) {
+                    e.printStackTrace();
                 }
+//                table.put("huishe", testStorable);
+//
+//                try {
+//                    Thread.sleep(300);
+//                } catch (InterruptedException e) {
+//                    e.printStackTrace();
+//                }
+
+//                try {
+//                    ref.set(table.commit());
+//                    ref3.set(table.size());
+//
+//                } catch (IOException e) {
+//                    throw new IllegalArgumentException("something went wrong");
+//                }
             }
         });
 
@@ -308,22 +331,36 @@ public class StoreableTableTest {
 
             @Override
             public void run() {
-                table.put("tryingToPutSecondKey", testStorable);
+
                 try {
-                    table.commit();
-                } catch (IOException e) {
-                    throw new IllegalArgumentException("something going wrong");
+                    Thread.sleep(100);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
                 }
+
+                table.put("tryingToPutFirstKey", testStorable);
+//                try {
+//                    Thread.sleep(300);
+//                } catch (Exception e) {
+//                    e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+//                }
+                ref.set(table.size());
+
+//                try {
+//                    table.commit();
+//                } catch (IOException e) {
+//                    throw new IllegalArgumentException("something went wrong");
+//                }
             }
         });
 
-        firstThread.run();
-        secondThread.run();
+        firstThread.start();
+        secondThread.start();
 
-        firstThread.interrupt();
-        secondThread.interrupt();
+        firstThread.join();
+        secondThread.join();
 
-        Assert.assertEquals(testStorable, table.get("tryingToPutFirstKey"));
-        Assert.assertEquals(testStorable, table.get("tryingToPutSecondKey"));
+        Assert.assertEquals(1, ref.get().intValue());
+        Assert.assertEquals(1, table.size());
     }
 }

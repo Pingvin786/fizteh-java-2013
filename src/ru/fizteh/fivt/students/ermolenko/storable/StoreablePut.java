@@ -25,7 +25,8 @@ public class StoreablePut implements Command<StoreableState> {
             return;
         }
         try {
-            Storeable deserialized = inState.getCurrentTable().getTableProvider().deserialize(inState.getCurrentTable(), args[1]);
+            Storeable deserialized =
+                    inState.getCurrentTable().getTableProvider().deserialize(inState.getCurrentTable(), args[1]);
 
             Storeable value = inState.putToCurrentTable(args[0], deserialized);
 
