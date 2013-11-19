@@ -33,7 +33,8 @@ public class FileMapUtils {
         return byteOutputStream.toString(StandardCharsets.UTF_8.toString());
     }
 
-    private static String readValue(DataInputStream dis, long offset1, long offset2, long position, long len) throws IOException {
+    private static String readValue(DataInputStream dis, long offset1, long offset2, long position, long len)
+            throws IOException {
 
         dis.mark((int) len);
         dis.skip(offset1 - position);
@@ -136,13 +137,9 @@ public class FileMapUtils {
         }
     }
 
-    public static void closeStream(Closeable stream) {
+    public static void closeStream(Closeable stream) throws IOException {
 
-        try {
-            stream.close();
-        } catch (IOException ignored) {
-
-        }
+        stream.close();
     }
 
     public static void write(Map<String, String> dataBase, File currentFile) throws IOException {
