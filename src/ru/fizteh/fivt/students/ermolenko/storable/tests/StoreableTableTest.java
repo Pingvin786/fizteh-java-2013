@@ -317,11 +317,11 @@ public class StoreableTableTest {
             }
         });
 
-        firstThread.run();
-        secondThread.run();
+        firstThread.start();
+        secondThread.start();
 
-        firstThread.interrupt();
-        secondThread.interrupt();
+        firstThread.join();
+        secondThread.join();
 
         Assert.assertEquals(testStorable, table.get("tryingToPutFirstKey"));
         Assert.assertEquals(testStorable, table.get("tryingToPutSecondKey"));
