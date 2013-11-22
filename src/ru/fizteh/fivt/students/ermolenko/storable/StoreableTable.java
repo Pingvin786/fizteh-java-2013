@@ -154,6 +154,26 @@ public class StoreableTable implements Table {
     @Override
     public int size() {
 
+
+        tableLock.lock();
+        try {
+
+            int size = dataBase.size();
+            Set<Map.Entry<String, Storeable>> set = changesBase.get().entrySet();
+            for (Map.Entry<String, Storeable> pair : set) {
+                if (pair.getValue() == null) {
+                    --size;
+                } else {
+                    if (!dataBase.containsKey(pair.getKey())) {
+                        ++size;
+                    }
+                }
+            }
+            return size;
+        } finally {
+            tableLock.unlock();
+        }
+        /*
         tableLock.lock();
         try {
             int size = sizeTable.get() + dataBase.size();
@@ -169,6 +189,7 @@ public class StoreableTable implements Table {
         } finally {
             tableLock.unlock();
         }
+        */
     }
 
     @Override
